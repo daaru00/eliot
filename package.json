@@ -14,7 +14,8 @@
     "http-errors": "^1.7.2",
     "serverless": "^1.40.0",
     "serverless-iam-roles-per-function": "^1.0.4",
-    "serverless-plugin-dynamodb": "^1.2.0"
+    "serverless-plugin-dynamodb": "^1.2.0",
+    "vuepress": "^0.14.10"
   },
   "dependencies": {
     "middy": "^0.24.0",
@@ -22,6 +23,8 @@
   },
   "scripts": {
     "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
+    "doc:build": "vuepress build doc",
+    "doc:serve": "vuepress dev doc",
     "deploy": "serverless deploy",
     "remove": "serverless remove",
     "auth:log": "serverless logs -f auth",
