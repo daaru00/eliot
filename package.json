@@ -23,8 +23,8 @@
   },
   "scripts": {
     "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
-    "doc:build": "vuepress build doc",
-    "doc:serve": "vuepress dev doc",
+    "doc:build": "vuepress build docs",
+    "doc:serve": "vuepress dev docs",
     "deploy": "serverless deploy",
     "remove": "serverless remove",
     "auth:log": "serverless logs -f auth",
