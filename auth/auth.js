@@ -1,9 +1,16 @@
+const url = require('url')
 const middy = require('middy')
 const { httpEventNormalizer, httpErrorHandler } = require('middy/middlewares')
-const url = require('url')
-const AuthCode = require('./models/AuthCode')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
 
+/**
+ * Models
+ */
+const AuthCode = require('./models/AuthCode')
+
+/**
+ * Validations
+ */
 const validation = {
   clientId: require('./validation/clientId'),
   responseTypeCode: require('./validation/responseTypeCode'),
@@ -13,6 +20,8 @@ const validation = {
 
 /**
  * Lambda handler
+ *
+ * @param {Object} event
  */
 const generateAuthCode = async (event) => {
   const redirectUri = new url.URL(event.queryStringParameters.redirect_uri)

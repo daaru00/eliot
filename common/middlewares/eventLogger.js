@@ -1,6 +1,5 @@
 /**
  * Log request and response
- *
  */
 module.exports = {
   before: async (handler) => {

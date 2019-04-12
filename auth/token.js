@@ -3,10 +3,16 @@ const { urlEncodeBodyParser, httpEventNormalizer, httpErrorHandler } = require('
 const loggerMiddleware = require('../common/middlewares/eventLogger')
 const createError = require('http-errors')
 
+/**
+ * Models
+ */
 const AuthCode = require('./models/AuthCode')
 const AccessToken = require('./models/AccessToken')
 const RefreshToken = require('./models/RefreshToken')
 
+/**
+ * Validations
+ */
 const validation = {
   clientId: require('./validation/clientId'),
   clientSecret: require('./validation/clientSecret'),
@@ -15,6 +21,8 @@ const validation = {
 
 /**
  * Lambda handler
+ *
+ * @param {Object} event
  */
 const generateTokens = async (event) => {
   const body = event.body
