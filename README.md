@@ -2,7 +2,7 @@
 
 IoT Home Automation bridge for Google Home and Alexa
 
-## Getting start
+## Getting Started
 
 ### Initialize
 
