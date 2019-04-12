@@ -1,17 +1,17 @@
 Outputs:
-  clientId:
+  OAuthClientId:
     Value: 
       Ref: ClientId
     Description: OAuth2.0 - Client ID
     Export:
       Name: OAuthClientId 
-  clientSecret:
+  OAuthClientSecret:
     Value: 
       Ref: ClientSecret
     Description: OAuth2.0 - Client secret
     Export:
       Name: OAuthClientSecret
-  authEndpoint:
+  OAuthEndpoint:
     Value: 
       "Fn::Join": [
         "",
@@ -34,7 +34,7 @@ Outputs:
     Description: OAuth2.0 - Authorization URL
     Export:
       Name: OAuthAuthorizationURL 
-  tokenEndpoint:
+  OAuthTokenEndpoint:
     Value: 
       "Fn::Join": [
         "",
@@ -57,7 +57,7 @@ Outputs:
     Description: OAuth2.0 - Token URL  
     Export:
       Name: OAuthTokenURL
-  googleHomeFulfillmentEndpoint:
+  GoogleHomeFulfillmentEndpoint:
     Value: 
       "Fn::Join": [
         "",

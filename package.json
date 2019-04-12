@@ -14,8 +14,7 @@
     "http-errors": "^1.7.2",
     "serverless": "^1.40.0",
     "serverless-iam-roles-per-function": "^1.0.4",
-    "serverless-plugin-dynamodb": "^1.2.0",
-    "vuepress": "^0.14.10"
+    "serverless-plugin-dynamodb": "^1.2.0"
   },
   "dependencies": {
     "middy": "^0.24.0",
@@ -23,8 +22,6 @@
   },
   "scripts": {
     "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
-    "doc:build": "vuepress build docs",
-    "doc:serve": "vuepress dev docs",
     "deploy": "serverless deploy",
     "remove": "serverless remove",
     "auth:log": "serverless logs -f auth",
@@ -32,6 +29,8 @@
     "token:log": "serverless logs -f token",
     "token:log:watch": "serverless logs -f token -t",
     "googleHome:log": "serverless logs -f googleHome",
-    "googleHome:log:watch": "serverless logs -f googleHome -t"
+    "googleHome:log:watch": "serverless logs -f googleHome -t",
+    "alexa:log": "serverless logs -f alexa",
+    "alexa:log:watch": "serverless logs -f alexa -t"
   }
 }

@@ -1,0 +1,11 @@
+Resources:
+  AlexaLambdaPermissionAlexaSmartHome:
+    Type: "AWS::Lambda::Permission"
+    Properties: 
+      FunctionName: 
+        "Fn::GetAtt": ["AlexaLambdaFunction", "Arn"]
+      Action: "lambda:InvokeFunction"
+      Principal: "alexa-connectedhome.amazon.com"
+      EventSourceToken: 
+        Ref: AlexaSkillId
+    

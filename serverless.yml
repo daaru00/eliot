@@ -99,6 +99,8 @@ functions:
   googleHome:
     handler: googleHome/fulfillment.handler
     environment:
+      GOOGLE_PROJECT_ID: 
+        Ref: GoogleProjectId
       TABLE_ACCESS_TOKENS: ${self:custom.tables.accessTokens.name}
     iamRoleStatements:
       - Effect: Allow
@@ -111,8 +113,20 @@ functions:
           path: google/fulfillment
           method: post
 
+  alexa:
+    handler: alexa/fulfillment.handler
+    environment:
+      TABLE_ACCESS_TOKENS: ${self:custom.tables.accessTokens.name}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: 
+          - "Fn::GetAtt": ["TableAccessTokens", "Arn"]
+
 # Resources
 
 resources:
   - ${file(parameters.yml)}
+  - ${file(resources.yml)}
   - ${file(outputs.yml)}

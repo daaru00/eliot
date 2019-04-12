@@ -1,9 +1,19 @@
 Parameters: 
   ClientId:
     Type: String 
+    Description: "OAuth2.0 client ID"
     Default: "${self:custom.credentials.clientId}"
     MinLength: 20
   ClientSecret:
     Type: String
+    Description: "OAuth2.0 client secret"
     Default: "${self:custom.credentials.clientSecret}"
     MinLength: 40
+  GoogleProjectId:
+    Type: String
+    Description: "Google project identifier"
+    Default: "${self:custom.credentials.googleProjectId}"
+  AlexaSkillId:
+    Type: String
+    Description: "Alexa skill ID"
+    Default: "${self:custom.credentials.alexaSkillId}"

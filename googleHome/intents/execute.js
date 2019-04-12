@@ -1,6 +1,6 @@
 
 /**
- * Lambda handler
+ * Intent handler
  *
  * @param {Object} intent
  * @returns {Object}
