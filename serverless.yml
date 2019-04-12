@@ -1,0 +1,118 @@
+
+# Service specifications
+
+service: eliot
+frameworkVersion: ">=1.39.0 <2.0.0"
+
+plugins:
+  - serverless-iam-roles-per-function
+  - serverless-plugin-dynamodb
+
+# Configurations
+
+custom: 
+  stage: test
+  region: eu-west-1
+  credentials: ${file(./credentials.yml)}
+  skipTablePolicy: true
+  tables:
+    authCodes:
+      name: ${self:service}-${self:provider.stage}-authCodes
+      primaryKey:
+        name: authCode
+        type: 'S'
+      ttl: 
+        attribute: ttl
+    refreshTokens:
+      name: ${self:service}-${self:provider.stage}-refreshTokens
+      primaryKey:
+        name: refreshToken
+        type: 'S'
+    accessTokens:
+      name: ${self:service}-${self:provider.stage}-accessTokens
+      primaryKey:
+        name: accessToken
+        type: 'S'
+      rangeKey:
+        name: refreshToken
+        type: 'S'
+      ttl: 
+        attribute: ttl
+
+# Provider
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: ${opt:stage,self:custom.stage}
+  region: ${opt:region,self:custom.region}
+
+# Functions
+
+functions:
+  auth:
+    handler: auth/auth.handler
+    environment:
+      CLIENT_ID: 
+        Ref: ClientId
+      TABLE_AUTH_CODES: ${self:custom.tables.authCodes.name}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: 
+          - "Fn::GetAtt": ["TableAuthCodes", "Arn"]
+    events:
+      - http:
+          path: auth
+          method: get
+
+  token:
+    handler: auth/token.handler
+    environment:
+      CLIENT_ID: 
+        Ref: ClientId
+      CLIENT_SECRET: 
+        Ref: ClientSecret
+      TABLE_AUTH_CODES: ${self:custom.tables.authCodes.name}
+      TABLE_REFRESH_TOKENS: ${self:custom.tables.refreshTokens.name}
+      TABLE_ACCESS_TOKENS: ${self:custom.tables.accessTokens.name}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:DeleteItem
+        Resource: 
+          - "Fn::GetAtt": ["TableAuthCodes", "Arn"]
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+        Resource: 
+          - "Fn::GetAtt": ["TableRefreshTokens", "Arn"]
+          - "Fn::GetAtt": ["TableAccessTokens", "Arn"]
+    events:
+      - http:
+          path: token
+          method: post
+
+  googleHome:
+    handler: googleHome/fulfillment.handler
+    environment:
+      TABLE_ACCESS_TOKENS: ${self:custom.tables.accessTokens.name}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: 
+          - "Fn::GetAtt": ["TableAccessTokens", "Arn"]
+    events:
+      - http:
+          path: google/fulfillment
+          method: post
+
+# Resources
+
+resources:
+  - ${file(parameters.yml)}
+  - ${file(outputs.yml)}

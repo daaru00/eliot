@@ -1,0 +1,34 @@
+{
+  "name": "eliot",
+  "version": "0.0.1",
+  "description": "IoT made easy",
+  "author": "Fabio Gollinucci <fbgolly@gmail.com>",
+  "license": "GNU",
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "http-errors": "^1.7.2",
+    "serverless": "^1.40.0",
+    "serverless-iam-roles-per-function": "^1.0.4",
+    "serverless-plugin-dynamodb": "^1.2.0"
+  },
+  "dependencies": {
+    "middy": "^0.24.0",
+    "randomstring": "^1.1.5"
+  },
+  "scripts": {
+    "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
+    "deploy": "serverless deploy",
+    "remove": "serverless remove",
+    "auth:log": "serverless logs -f auth",
+    "auth:log:watch": "serverless logs -f auth -t",
+    "token:log": "serverless logs -f token",
+    "token:log:watch": "serverless logs -f token -t",
+    "googleHome:log": "serverless logs -f googleHome",
+    "googleHome:log:watch": "serverless logs -f googleHome -t"
+  }
+}

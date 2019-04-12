@@ -1,0 +1,9 @@
+Parameters: 
+  ClientId:
+    Type: String 
+    Default: "${self:custom.credentials.clientId}"
+    MinLength: 20
+  ClientSecret:
+    Type: String
+    Default: "${self:custom.credentials.clientSecret}"
+    MinLength: 40
