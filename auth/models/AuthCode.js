@@ -1,6 +1,8 @@
 const AbstractDbModel = require('../../common/models/AbstractDbModel')
 const randomstring = require('randomstring')
 
+const LENGTH = 7
+
 class AuthCode extends AbstractDbModel {
   /**
    * Generate tokens
@@ -8,7 +10,7 @@ class AuthCode extends AbstractDbModel {
    * @returns {String}
    */
   async generate () {
-    const authCode = randomstring.generate(7)
+    const authCode = randomstring.generate(LENGTH)
     const createdAt = new Date().getTime()
     await this.put({
       authCode,

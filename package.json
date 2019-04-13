@@ -17,10 +17,15 @@
     "serverless-plugin-dynamodb": "^1.2.0"
   },
   "dependencies": {
+    "chai": "^4.2.0",
+    "glob": "^7.1.3",
     "middy": "^0.24.0",
+    "mocha": "^6.1.3",
     "randomstring": "^1.1.5"
   },
   "scripts": {
+    "test:local": "node test/execute.js",
+    "test:remote": "serverless invoke -f test",
     "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "deploy": "serverless deploy",
     "remove": "serverless remove",
