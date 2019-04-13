@@ -14,9 +14,9 @@ const RefreshToken = require('./models/RefreshToken')
  * Validations
  */
 const validation = {
-  clientId: require('./validation/clientId'),
-  clientSecret: require('./validation/clientSecret'),
-  grantType: require('./validation/grantType')
+  clientId: require('./validations/clientId'),
+  clientSecret: require('./validations/clientSecret'),
+  grantType: require('./validations/grantType')
 }
 
 /**

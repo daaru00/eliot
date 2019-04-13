@@ -12,10 +12,10 @@ const AuthCode = require('./models/AuthCode')
  * Validations
  */
 const validation = {
-  clientId: require('./validation/clientId'),
-  responseTypeCode: require('./validation/responseTypeCode'),
-  redirectUri: require('./validation/redirectUri'),
-  googleProjectId: require('./validation/googleProjectId')
+  clientId: require('./validations/clientId'),
+  responseTypeCode: require('./validations/responseTypeCode'),
+  redirectUri: require('./validations/redirectUri'),
+  googleProjectId: require('./validations/googleProjectId')
 }
 
 /**

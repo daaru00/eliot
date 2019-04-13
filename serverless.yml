@@ -96,11 +96,9 @@ functions:
           path: token
           method: post
 
-  googleHome:
-    handler: googleHome/fulfillment.handler
+  authorizer:
+    handler: auth/authorizer.handler
     environment:
-      GOOGLE_PROJECT_ID: 
-        Ref: GoogleProjectId
       TABLE_ACCESS_TOKENS: ${self:custom.tables.accessTokens.name}
     iamRoleStatements:
       - Effect: Allow
@@ -108,10 +106,21 @@ functions:
           - dynamodb:Query
         Resource: 
           - "Fn::GetAtt": ["TableAccessTokens", "Arn"]
+
+  googleHome:
+    handler: googleHome/fulfillment.handler
+    environment:
+      GOOGLE_PROJECT_ID:
+        Ref: GoogleProjectId
     events:
       - http:
           path: google/fulfillment
           method: post
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 300
+            identitySource: method.request.header.Authorization
+            type: token
 
   alexa:
     handler: alexa/fulfillment.handler
