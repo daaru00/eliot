@@ -1,4 +1,5 @@
 const middy = require('middy')
+const createError = require('http-errors')
 const { httpErrorHandler, httpEventNormalizer, jsonBodyParser } = require('middy/middlewares')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
 
@@ -28,42 +29,34 @@ const intent = {
  * @param {Object} event
  */
 const fulfillment = async (event) => {
-  let response
+  let payload
 
   switch (event.intent.intent) {
     case 'action.devices.SYNC':
-      response = {
-        statusCode: 200,
-        body: JSON.stringify(await intent.sync(event.intent))
-      }
+      payload = await intent.sync(event.intent)
       break
     case 'action.devices.QUERY':
-      response = {
-        statusCode: 200,
-        body: JSON.stringify(await intent.query(event.intent))
-      }
+      payload = await intent.query(event.intent)
       break
     case 'action.devices.EXECUTE':
-      response = {
-        statusCode: 200,
-        body: JSON.stringify(await intent.execute(event.intent))
-      }
+      payload = await intent.execute(event.intent)
       break
     case 'action.devices.DISCONNECT':
       await intent.disconnect(event)
-      response = {
+      return {
         statusCode: 200
       }
-      break
     default:
-      response = {
-        statusCode: 400,
-        body: 'invalid_intent_type'
-      }
-      break
+      throw createError.BadRequest()
   }
 
-  return response
+  return {
+    statusCode: 200,
+    body: JSON.stringify({
+      requestId: event.requestId,
+      payload
+    })
+  }
 }
 
 const handler = middy(fulfillment)

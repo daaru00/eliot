@@ -7,5 +7,8 @@ module.exports = {
   },
   after: async (handler) => {
     console.debug('response', JSON.stringify(handler.response))
+  },
+  onError: async (handler) => {
+    console.error('response', JSON.stringify(handler.response))
   }
 }

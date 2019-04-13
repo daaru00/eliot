@@ -18,7 +18,8 @@ const validation = {
 const directive = {
   authorization: require('./directives/authorization'),
   discovery: require('./directives/discovery'),
-  controllers: require('./directives/controllers')
+  controllers: require('./directives/controllers'),
+  state: require('./directives/state')
 }
 
 /**
@@ -28,7 +29,6 @@ const directive = {
  */
 const fulfillment = async (event) => {
   let response = {}
-
   switch (event.directive.header.namespace) {
     case 'Alexa.Authorization':
       response = await directive.authorization(event.directive)
@@ -38,6 +38,13 @@ const fulfillment = async (event) => {
       break
     case 'Alexa.PowerController':
       response = await directive.controllers(event.directive)
+      break
+    case 'Alexa':
+      switch (event.directive.header.name) {
+        case 'ReportState':
+          response = await directive.state(event.directive)
+          break
+      }
       break
     default:
       throw createError.BadRequest()

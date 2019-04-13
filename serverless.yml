@@ -55,6 +55,8 @@ functions:
     environment:
       CLIENT_ID: 
         Ref: ClientId
+      GOOGLE_PROJECT_ID:
+        Ref: GoogleProjectId
       TABLE_AUTH_CODES: ${self:custom.tables.authCodes.name}
     iamRoleStatements:
       - Effect: Allow
@@ -109,9 +111,6 @@ functions:
 
   googleHome:
     handler: googleHome/fulfillment.handler
-    environment:
-      GOOGLE_PROJECT_ID:
-        Ref: GoogleProjectId
     events:
       - http:
           path: google/fulfillment

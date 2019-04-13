@@ -12,7 +12,7 @@ module.exports = {
   before: async (handler) => {
     const redirectUri = new url.URL(handler.event.queryStringParameters.redirect_uri)
 
-    if (GOOGLE_PROJECT_ID === undefined && GOOGLE_PROJECT_ID === '') {
+    if (GOOGLE_PROJECT_ID === undefined || GOOGLE_PROJECT_ID === '') {
       return
     }
 

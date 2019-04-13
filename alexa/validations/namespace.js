@@ -3,7 +3,8 @@ const createError = require('http-errors')
 const SUPPORTED_NAMESPACE = [
   'Alexa.Authorization',
   'Alexa.Discovery',
-  'Alexa.PowerController'
+  'Alexa.PowerController',
+  'Alexa'
 ]
 
 /**
@@ -14,10 +15,6 @@ module.exports = {
     const header = handler.event.directive.header
 
     if (header.namespace === undefined || header.namespace === null) {
-      throw createError.BadRequest()
-    }
-
-    if (header.namespace.startsWith('Alexa.') === false) {
       throw createError.BadRequest()
     }
 
