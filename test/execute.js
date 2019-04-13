@@ -21,5 +21,3 @@ exports.handler = (event, context, callback) => {
     }
   })
 }
-
-exports.handler(null, null, console.log)

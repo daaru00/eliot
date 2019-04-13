@@ -24,7 +24,7 @@
     "randomstring": "^1.1.5"
   },
   "scripts": {
-    "test:local": "node test/execute.js",
+    "test:local": "mocha $(find ./test ! -path '*/execute.js' -type f)",
     "test:remote": "serverless invoke -f test",
     "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "deploy": "serverless deploy",
