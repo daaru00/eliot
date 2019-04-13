@@ -1,7 +1,7 @@
-const AbstractModel = require('../../common/models/AbstractModel')
+const AbstractDbModel = require('../../common/models/AbstractDbModel')
 const randomstring = require('randomstring')
 
-class AuthCode extends AbstractModel {
+class AuthCode extends AbstractDbModel {
   /**
    * Generate tokens
    *

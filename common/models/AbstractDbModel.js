@@ -1,7 +1,7 @@
 const DynamoDB = require('aws-sdk/clients/dynamodb')
 const documentClient = new DynamoDB.DocumentClient({ apiVersion: '2012-08-10' })
 
-module.exports = class AbstractModel {
+module.exports = class AbstractDbModel {
   /**
    * Model contructor
    *

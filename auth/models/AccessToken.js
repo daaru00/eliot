@@ -1,10 +1,10 @@
-const AbstractModel = require('../../common/models/AbstractModel')
+const AbstractDbModel = require('../../common/models/AbstractDbModel')
 const randomstring = require('randomstring')
 
 const TTL = 2592000 // 30 days
 const LENGTH = 40
 
-class AccessToken extends AbstractModel {
+class AccessToken extends AbstractDbModel {
   /**
    * Generate access token
    *
