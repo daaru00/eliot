@@ -1,6 +1,7 @@
 const middy = require('middy')
 const createError = require('http-errors')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const httpTransformer = require('./transformers/http')
 
 /**
  * Validations
@@ -46,6 +47,7 @@ const fulfillment = async (event) => {
 }
 
 const handler = middy(fulfillment)
+  .use(httpTransformer)
   .use(loggerMiddleware)
   .use(validation.token)
   .use(validation.directive)

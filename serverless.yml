@@ -132,6 +132,15 @@ functions:
           - dynamodb:Query
         Resource: 
           - "Fn::GetAtt": ["TableAccessTokens", "Arn"]
+    events:
+      - http:
+          path: alexa/fulfillment
+          method: post
+          authorizer:
+            name: authorizer
+            resultTtlInSeconds: 300
+            identitySource: method.request.header.Authorization
+            type: token
 
 # Resources
 

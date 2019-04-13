@@ -22,6 +22,13 @@ module.exports = {
       handler.event.directive.endpoint.scope.type === 'BearerToken'
     ) {
       accessToken = handler.event.directive.endpoint.scope.token
+    } else if (
+      handler.event.directive &&
+      handler.event.directive.payload &&
+      handler.event.directive.payload.scope &&
+      handler.event.directive.payload.scope.type === 'BearerToken'
+    ) {
+      accessToken = handler.event.directive.payload.scope.token
     }
 
     if (accessToken === undefined || accessToken.trim().length === 0) {
