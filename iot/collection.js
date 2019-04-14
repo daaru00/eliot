@@ -45,7 +45,7 @@ class IoTCollection {
         maxResults: 250
       }).promise()
       this.devices = this.devices.concat(
-        response.things.map(thing => deviceFactory(provider, thing.attributes.type, thing))
+        response.things.map(thing => deviceFactory(provider, thing.attributes.type, thing).getDescription())
       )
     } while (response.nextToken !== null)
     return this.devices
@@ -67,6 +67,22 @@ class IoTCollection {
       chunk = this.devices.slice(i, i + CONCURRENT_SHADOW_GET)
       await Promise.all(chunk.map((device) => device.loadShadow(this.dataClient)))
     }
+  }
+
+  /**
+   * Load a single devices
+   */
+  async loadSingleDevice (provider, id) {
+    if (this.dataClient === undefined) {
+      await this.init()
+    }
+    const thing = await iot.describeThing({
+      thingName: id
+    }).promise()
+    if (thing === null) {
+      return null
+    }
+    return deviceFactory(provider, thing.attributes.type, thing)
   }
 }
 

@@ -46,8 +46,28 @@ module.exports = class BaseDevice {
       }
       dataClient = this.dataClient
     }
-    const response = await dataClient.getThingShadow().promise()
+    const response = await dataClient.getThingShadow({
+      thingName: this.name
+    }).promise()
     this.shadow = response.payload
+  }
+
+  /**
+   * Enrich device with shadow data
+   *
+   * @param {IotData} dataClient
+   */
+  async saveShadow (dataClient) {
+    if (dataClient === undefined) {
+      if (this.dataClient === undefined) {
+        await this.init()
+      }
+      dataClient = this.dataClient
+    }
+    await dataClient.updateThingShadow({
+      thingName: this.name,
+      payload: JSON.stringify(this.shadow)
+    }).promise()
   }
 
   /**
@@ -61,6 +81,7 @@ module.exports = class BaseDevice {
    * Default state
    */
   async getState () {
+    await this.loadShadow()
     return {}
   }
 

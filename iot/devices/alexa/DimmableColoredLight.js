@@ -48,6 +48,7 @@ module.exports = class DimmableColoredLight extends DimmableLight {
    * Get state
    */
   async getState () {
+    await this.loadShadow()
     const parentState = await super.getState()
     this.shadow.color = this.shadow.color || {}
     this.shadow.color = Object.assign({ r: 0, g: 0, b: 0 }, this.shadow.color)
@@ -84,6 +85,7 @@ module.exports = class DimmableColoredLight extends DimmableLight {
         payload.color = Object.assign({ hue: 0, saturation: 0, brightness: 0 }, payload.color)
         const rgb = colorConvert.hsv.rgb([payload.color.hue, payload.color.saturation, payload.color.brightness])
         this.shadow.color = { r: rgb[0], g: rgb[1], b: rgb[2] }
+        await this.saveShadow()
         return true
 
       case 'Alexa.ColorTemperatureController.DecreaseColorTemperature':
@@ -108,6 +110,7 @@ module.exports = class DimmableColoredLight extends DimmableLight {
             }
         }
         this.shadow.colorTemperature = newColorTemperature
+        await this.saveShadow()
         return true
 
       case 'Alexa.ColorTemperatureController.IncreaseColorTemperature':
@@ -131,10 +134,12 @@ module.exports = class DimmableColoredLight extends DimmableLight {
             }
         }
         this.shadow.colorTemperature = newColorTemperature
+        await this.saveShadow()
         return true
 
       case 'Alexa.ColorTemperatureController.SetColorTemperature':
         this.shadow.colorTemperature = payload.colorTemperatureInKelvin
+        await this.saveShadow()
         return true
     }
 

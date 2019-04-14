@@ -135,6 +135,9 @@ functions:
 
   googleHome:
     handler: googleHome/fulfillment.handler
+    environment:
+      ACCOUNT_ID:
+        Ref: AWS::AccountId
     events:
       - http:
           path: google/fulfillment

@@ -63,4 +63,14 @@ module.exports = class BaseGoogleDevice extends BaseDevice {
   getAttributes () {
     return {}
   }
+
+  /**
+   * Default state
+   */
+  async getState () {
+    await this.loadShadow()
+    return {
+      online: true
+    }
+  }
 }

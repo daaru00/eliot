@@ -28,8 +28,8 @@ module.exports = class Light extends BaseGoogleDevice {
    * Get state
    */
   async getState () {
-    const parentState = await super.getState()
     await this.loadShadow()
+    const parentState = await super.getState()
     if (this.shadow.on === undefined || this.shadow.on === null) {
       this.shadow.on = false
     }
@@ -53,6 +53,7 @@ module.exports = class Light extends BaseGoogleDevice {
     switch (command) {
       case 'action.devices.commands.OnOff':
         this.shadow.on = payload.on || false
+        await this.saveShadow()
         return true
     }
 

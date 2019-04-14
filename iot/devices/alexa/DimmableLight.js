@@ -33,8 +33,8 @@ module.exports = class DimmableLight extends LightDevice {
    * Get state
    */
   async getState () {
-    const parentState = await super.getState()
     await this.loadShadow()
+    const parentState = await super.getState()
 
     if (this.shadow.brightness === undefined || this.shadow.brightness === null) {
       this.shadow.brightness = 0
@@ -76,9 +76,11 @@ module.exports = class DimmableLight extends LightDevice {
           newValue = 100
         }
         this.shadow.brightness = newValue
+        await this.saveShadow()
         return true
       case 'Alexa.BrightnessController.SetBrightness':
         this.shadow.brightness = payload.brightness
+        await this.saveShadow()
         return true
     }
 

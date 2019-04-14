@@ -21,6 +21,7 @@ module.exports = class DimmableColoredLight extends DimmableLight {
    * Get state
    */
   async getState () {
+    await this.loadShadow()
     const parentState = await super.getState()
     this.shadow.color = this.shadow.color || {}
     this.shadow.color = Object.assign(this.shadow.color, { r: 0, g: 0, b: 0 })
@@ -57,9 +58,25 @@ module.exports = class DimmableColoredLight extends DimmableLight {
         const rgb = colorConvert.hsv.rgb([payload.spectrumHSV.hue, payload.spectrumHSV.saturation, payload.spectrumHSV.value])
         this.shadow.colorTemperature = payload.temperature
         this.shadow.color = { r: rgb[0], g: rgb[1], b: rgb[2] }
+        await this.saveShadow()
         return true
     }
 
     return false
+  }
+
+  /**
+   * attributes
+   *
+   * @return {Object}
+   */
+  getAttributes () {
+    return {
+      colorModel: 'hsv',
+      colorTemperatureRange: {
+        temperatureMinK: this.attributes.temperatureMinK || 2200,
+        temperatureMaxK: this.attributes.temperatureMaxK || 7000
+      }
+    }
   }
 }

@@ -20,6 +20,7 @@ module.exports = class DimmableLight extends LightDevice {
    * Get state
    */
   async getState () {
+    await this.loadShadow()
     const parentState = await super.getState()
     if (this.shadow.brightness === undefined || this.shadow.brightness === null) {
       this.shadow.brightness = 0
@@ -58,6 +59,7 @@ module.exports = class DimmableLight extends LightDevice {
         } else if (this.shadow.brightness > 100) {
           this.shadow.brightness = 100
         }
+        await this.saveShadow()
         return true
     }
 

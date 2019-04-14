@@ -41,8 +41,8 @@ module.exports = class Light extends BaseAlexaDevice {
    * Get state
    */
   async getState () {
-    const parentState = await super.getState()
     await this.loadShadow()
+    const parentState = await super.getState()
     if (this.shadow.on === undefined || this.shadow.on === null) {
       this.shadow.on = false
     }
@@ -66,9 +66,11 @@ module.exports = class Light extends BaseAlexaDevice {
     switch (command) {
       case 'Alexa.PowerController.TurnOn':
         this.shadow.on = true
+        await this.saveShadow()
         return true
       case 'Alexa.PowerController.TurnOff':
         this.shadow.on = false
+        await this.saveShadow()
         return true
     }
 
