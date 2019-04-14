@@ -1,7 +1,9 @@
 const Iot = require('aws-sdk/clients/iot')
 const IotData = require('aws-sdk/clients/iotdata')
 const iot = new Iot({ apiVersion: '2015-05-28' })
+// eslint-disable-next-line no-unused-vars
 const BaseDevice = require('./models/BaseDevice')
+const deviceFactory = require('./devices/factory')
 
 const CONCURRENT_SHADOW_GET = 5
 
@@ -30,9 +32,10 @@ class IoTCollection {
   /**
    * List IoT Things
    *
+   * @param {String} provider
    * @returns {BaseDevice[]}
    */
-  async list () {
+  async list (provider) {
     this.devices = []
     let response = {}
     do {
@@ -41,7 +44,9 @@ class IoTCollection {
         attributeValue: 'enable',
         maxResults: 250
       }).promise()
-      this.devices = this.devices.concat(response.things.map(thing => new BaseDevice(thing)))
+      this.devices = this.devices.concat(
+        response.things.map(thing => deviceFactory(provider, thing.attributes.type, thing))
+      )
     } while (response.nextToken !== null)
     return this.devices
   }
@@ -62,22 +67,6 @@ class IoTCollection {
       chunk = this.devices.slice(i, i + CONCURRENT_SHADOW_GET)
       await Promise.all(chunk.map((device) => device.loadShadow(this.dataClient)))
     }
-  }
-
-  /**
-   * Load all devices decoration for Google Home
-   */
-  async loadDecorationsForGoogleHome () {
-    this.devicesDecorated = this.devices.map(device => device.decorateForGoogleHome())
-    return this.devicesDecorated
-  }
-
-  /**
-   * Load all devices decoration for Alexa
-   */
-  async loadDecorationsForAlexa () {
-    this.devicesDecorated = this.devices.map(device => device.decorateForAlexa())
-    return this.devicesDecorated
   }
 }
 

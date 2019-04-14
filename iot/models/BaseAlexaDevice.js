@@ -1,3 +1,5 @@
+const BaseDevice = require('./BaseDevice')
+
 const MANUFACTURER = 'Eliot'
 const DEFAULT_TYPE = 'OTHER'
 const DEFAULT_CAPABILITIES = []
@@ -5,7 +7,7 @@ const DEFAULT_CAPABILITIES = []
 /**
  * Google IoT Device
  */
-module.exports = class BaseAlexaDevice {
+module.exports = class BaseAlexaDevice extends BaseDevice {
   /**
    * Decorate device for Google Home
    *
@@ -20,12 +22,12 @@ module.exports = class BaseAlexaDevice {
       displayCategories: this.getType(),
       cookie: {},
       capabilities: [
+        ...this.getCapabilities(),
         {
           type: 'AlexaInterface',
           interface: 'Alexa',
           version: '3'
-        },
-        ...this.getCapabilities()
+        }
       ]
     }
   }

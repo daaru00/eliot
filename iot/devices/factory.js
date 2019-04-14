@@ -1,6 +1,5 @@
 const fs = require('fs')
 const path = require('path')
-// eslint-disable-next-line no-unused-vars
 const BaseDevice = require('../models/BaseDevice')
 
 /**
@@ -8,11 +7,11 @@ const BaseDevice = require('../models/BaseDevice')
  *
  * @returns {BaseDevice}
  */
-module.exports = (provider, type, { iotThing, endpointAddress }) => {
+module.exports = (provider, type, iotThing) => {
   const classPath = path.join(__dirname, provider, `${type}.js`)
   if (fs.existsSync(classPath) === false) {
-    return null
+    return new BaseDevice(iotThing)
   }
   const DeviceClass = require(classPath)
-  return new DeviceClass()
+  return new DeviceClass(iotThing)
 }

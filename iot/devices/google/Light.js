@@ -3,7 +3,7 @@ const BaseGoogleDevice = require('../../models/BaseGoogleDevice')
 /**
  * Light Device
  */
-module.exports = class BaseDevice extends BaseGoogleDevice {
+module.exports = class Light extends BaseGoogleDevice {
   /**
    * Get Type
    *
@@ -22,5 +22,40 @@ module.exports = class BaseDevice extends BaseGoogleDevice {
     return [
       'action.devices.traits.OnOff'
     ]
+  }
+
+  /**
+   * Get state
+   */
+  async getState () {
+    const parentState = await super.getState()
+    await this.loadShadow()
+    if (this.shadow.on === undefined || this.shadow.on === null) {
+      this.shadow.on = false
+    }
+    return Object.assign(parentState, {
+      on: this.shadow.on === true
+    })
+  }
+
+  /**
+   * Execute command
+   *
+   * @param {String} command
+   * @param {Object} payload
+   * @returns {Boolean}
+   */
+  async execute (command, payload) {
+    if (await super.execute(command, payload)) {
+      return true
+    }
+
+    switch (command) {
+      case 'action.devices.commands.OnOff':
+        this.shadow.on = payload.on || false
+        return true
+    }
+
+    return false
   }
 }

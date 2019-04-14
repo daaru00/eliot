@@ -24,7 +24,7 @@ module.exports = class BaseGoogleDevice extends BaseDevice {
         name: this.name,
         nicknames: this.attributes.nickname ? [this.attributes.nickname] : []
       },
-      willReportState: false,
+      willReportState: this.reportState,
       roomHint: this.attributes.room || 'Cloud',
       attributes: this.getAttributes(),
       deviceInfo: {
