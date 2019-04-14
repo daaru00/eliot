@@ -37,7 +37,7 @@ class IoTCollection {
     let response = {}
     do {
       response = await iot.listThings({
-        attributeName: 'SmartHome',
+        attributeName: 'sync',
         attributeValue: 'enable',
         maxResults: 250
       }).promise()
@@ -62,6 +62,22 @@ class IoTCollection {
       chunk = this.devices.slice(i, i + CONCURRENT_SHADOW_GET)
       await Promise.all(chunk.map((device) => device.loadShadow(this.dataClient)))
     }
+  }
+
+  /**
+   * Load all devices decoration for Google Home
+   */
+  async loadDecorationsForGoogleHome () {
+    this.devicesDecorated = this.devices.map(device => device.decorateForGoogleHome())
+    return this.devicesDecorated
+  }
+
+  /**
+   * Load all devices decoration for Alexa
+   */
+  async loadDecorationsForAlexa () {
+    this.devicesDecorated = this.devices.map(device => device.decorateForAlexa())
+    return this.devicesDecorated
   }
 }
 
