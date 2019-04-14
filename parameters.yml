@@ -13,6 +13,10 @@ Parameters:
     Type: String
     Description: "Google project identifier"
     Default: "${self:custom.credentials.googleProjectId}"
+  GoogleAPIKey:
+    Type: String
+    Description: "Google API key"
+    Default: "${self:custom.credentials.googleApiKey}"
   AlexaSkillId:
     Type: String
     Description: "Alexa skill ID"

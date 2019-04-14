@@ -18,6 +18,7 @@
     "serverless-plugin-dynamodb": "^1.2.0"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "chai": "^4.2.0",
     "glob": "^7.1.3",
     "middy": "^0.24.0",
@@ -39,6 +40,9 @@
     "authorizer:log:watch": "serverless logs -f authorizer -t",
     "googleHome:log": "serverless logs -f googleHome",
     "googleHome:log:watch": "serverless logs -f googleHome -t",
+    "googleHomeResync:log": "serverless logs -f googleHomeResync",
+    "googleHomeResync:log:watch": "serverless logs -f googleHomeResync -t",
+    "googleHomeResync:execute": "serverless invoke -f googleHomeResync",
     "alexa:log": "serverless logs -f alexa",
     "alexa:log:watch": "serverless logs -f alexa -t"
   }
