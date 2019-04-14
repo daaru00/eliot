@@ -33,7 +33,6 @@ module.exports = class DimmableLight extends LightDevice {
    * Get state
    */
   async getState () {
-    await this.loadShadow()
     const parentState = await super.getState()
 
     if (this.shadow.brightness === undefined || this.shadow.brightness === null) {

@@ -33,16 +33,16 @@ const fulfillment = async (event) => {
 
   switch (event.intent.intent) {
     case 'action.devices.SYNC':
-      payload = await intent.sync(event.intent)
+      payload = await intent.sync()
       break
     case 'action.devices.QUERY':
-      payload = await intent.query(event.intent)
+      payload = await intent.query(event.intent.payload)
       break
     case 'action.devices.EXECUTE':
-      payload = await intent.execute(event.intent)
+      payload = await intent.execute(event.intent.payload)
       break
     case 'action.devices.DISCONNECT':
-      await intent.disconnect(event)
+      await intent.disconnect()
       return {
         statusCode: 200
       }

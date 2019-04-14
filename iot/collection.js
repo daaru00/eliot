@@ -5,6 +5,9 @@ const iot = new Iot({ apiVersion: '2015-05-28' })
 const BaseDevice = require('./models/BaseDevice')
 const deviceFactory = require('./devices/factory')
 
+const ATTRIBUTE_SYNC_NAME = 'sync'
+const ATTRIBUTE_SYNC_VALUE = 'enable'
+const ATTRIBUTE_TYPE_NAME = 'type'
 const CONCURRENT_SHADOW_GET = 5
 
 /**
@@ -40,12 +43,12 @@ class IoTCollection {
     let response = {}
     do {
       response = await iot.listThings({
-        attributeName: 'sync',
-        attributeValue: 'enable',
+        attributeName: ATTRIBUTE_SYNC_NAME,
+        attributeValue: ATTRIBUTE_SYNC_VALUE,
         maxResults: 250
       }).promise()
       this.devices = this.devices.concat(
-        response.things.map(thing => deviceFactory(provider, thing.attributes.type, thing).getDescription())
+        response.things.map(thing => deviceFactory(provider, thing.attributes[ATTRIBUTE_TYPE_NAME], thing).getDescription())
       )
     } while (response.nextToken !== null)
     return this.devices

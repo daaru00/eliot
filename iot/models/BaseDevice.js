@@ -49,7 +49,9 @@ module.exports = class BaseDevice {
     const response = await dataClient.getThingShadow({
       thingName: this.name
     }).promise()
-    this.shadow = response.payload
+    let payload = JSON.parse(response.payload || '{}')
+    payload = payload || { state: { reported: {} } }
+    this.shadow = payload.state.reported
   }
 
   /**
@@ -66,7 +68,11 @@ module.exports = class BaseDevice {
     }
     await dataClient.updateThingShadow({
       thingName: this.name,
-      payload: JSON.stringify(this.shadow)
+      payload: JSON.stringify({
+        state: {
+          desired: this.shadow
+        }
+      })
     }).promise()
   }
 
@@ -93,6 +99,7 @@ module.exports = class BaseDevice {
    * @returns {Boolean}
    */
   async execute (command, payload) {
+    await this.loadShadow()
     return false
   }
 }

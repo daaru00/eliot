@@ -1,12 +1,11 @@
 const deviceCollection = require('../../iot/collection')
 
 /**
- * Intent handler
+ * Sync intent handler
  *
- * @param {Object} intent
  * @returns {Object}
  */
-module.exports = async (intent) => {
+module.exports = async () => {
   const devices = await deviceCollection.list('google')
 
   return {

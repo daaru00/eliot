@@ -1,9 +1,7 @@
 
 /**
- * Intent handler
- *
- * @param {Object} intent
+ * Disconnect intent handler
  */
-module.exports = async (intent) => {
+module.exports = async () => {
 
 }

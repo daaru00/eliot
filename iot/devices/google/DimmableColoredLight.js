@@ -21,7 +21,6 @@ module.exports = class DimmableColoredLight extends DimmableLight {
    * Get state
    */
   async getState () {
-    await this.loadShadow()
     const parentState = await super.getState()
     this.shadow.color = this.shadow.color || {}
     this.shadow.color = Object.assign(this.shadow.color, { r: 0, g: 0, b: 0 })

@@ -138,6 +138,15 @@ functions:
     environment:
       ACCOUNT_ID:
         Ref: AWS::AccountId
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - iot:ListThings
+          - iot:DescribeEndpoint
+          - iot:DescribeThing
+          - iot:GetThingShadow
+          - iot:UpdateThingShadow
+        Resource: '*'
     events:
       - http:
           path: google/fulfillment

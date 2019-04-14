@@ -28,7 +28,6 @@ module.exports = class Light extends BaseGoogleDevice {
    * Get state
    */
   async getState () {
-    await this.loadShadow()
     const parentState = await super.getState()
     if (this.shadow.on === undefined || this.shadow.on === null) {
       this.shadow.on = false

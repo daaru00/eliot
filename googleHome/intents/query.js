@@ -1,7 +1,7 @@
 const deviceCollection = require('../../iot/collection')
 
 /**
- * Intent handler
+ * Query intent handler
  *
  * @param {Object} intent
  * @returns {Object}

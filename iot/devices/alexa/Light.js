@@ -41,7 +41,6 @@ module.exports = class Light extends BaseAlexaDevice {
    * Get state
    */
   async getState () {
-    await this.loadShadow()
     const parentState = await super.getState()
     if (this.shadow.on === undefined || this.shadow.on === null) {
       this.shadow.on = false

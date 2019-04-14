@@ -1,7 +1,7 @@
 const deviceCollection = require('../../iot/collection')
 
 /**
- * Intent handler
+ * Esecute intent handler
  *
  * @param {Object} intent
  * @returns {Object}
@@ -10,10 +10,12 @@ module.exports = async (intent) => {
   const commandsToExecute = []
   intent.commands.forEach(command => {
     command.devices.forEach(device => {
-      commandsToExecute.push({
-        deviceId: device.id,
-        command: command.execution.command,
-        payload: command.execution.params
+      command.execution.forEach(execution => {
+        commandsToExecute.push({
+          deviceId: device.id,
+          command: execution.command,
+          payload: execution.params
+        })
       })
     })
   })
