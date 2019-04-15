@@ -12,7 +12,7 @@ class AccessToken extends AbstractDbModel {
    * @returns {Object}
    */
   async generate (refreshToken) {
-    const createdAt = new Date().getTime()
+    const createdAt = new Date().getTime() / 1000
     const expiresIn = TTL
     const accessToken = randomstring.generate(LENGTH)
     await this.put({

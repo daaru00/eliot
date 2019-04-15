@@ -11,7 +11,7 @@ class AuthCode extends AbstractDbModel {
    */
   async generate () {
     const authCode = randomstring.generate(LENGTH)
-    const createdAt = new Date().getTime()
+    const createdAt = new Date().getTime() / 1000
     await this.put({
       authCode,
       createdAt,

@@ -177,6 +177,14 @@ functions:
           - dynamodb:Query
         Resource: 
           - "Fn::GetAtt": ["TableAccessTokens", "Arn"]
+      - Effect: Allow
+        Action:
+          - iot:ListThings
+          - iot:DescribeEndpoint
+          - iot:DescribeThing
+          - iot:GetThingShadow
+          - iot:UpdateThingShadow
+        Resource: '*'
     events:
       - http:
           path: alexa/fulfillment

@@ -28,6 +28,7 @@
   "scripts": {
     "test:local": "mocha ./test/units",
     "test:remote": "serverless invoke -f test",
+    "test:remote:log": "serverless logs -f test",
     "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "deploy": "serverless deploy",
     "remove": "serverless remove",

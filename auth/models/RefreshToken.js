@@ -10,7 +10,7 @@ class RefreshToken extends AbstractDbModel {
    * @returns {String}
    */
   async generate () {
-    const createdAt = new Date().getTime()
+    const createdAt = new Date().getTime() / 1000
     const refreshToken = randomstring.generate(LENGTH)
     await this.put({
       refreshToken,
