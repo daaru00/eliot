@@ -3,6 +3,7 @@ const BaseDevice = require('./BaseDevice')
 const MANUFACTURER = 'Eliot'
 const DEFAULT_TYPE = 'OTHER'
 const DEFAULT_CAPABILITIES = []
+const DEFAULT_DESCRIPTION = 'Device syncronized from AWS IoT'
 
 /**
  * Google IoT Device
@@ -26,10 +27,12 @@ module.exports = class BaseAlexaDevice extends BaseDevice {
   getDescription () {
     return {
       endpointId: this.name,
-      manufacturerName: MANUFACTURER,
       friendlyName: this.attributes.nickname ? this.attributes.nickname : this.name,
-      description: this.attributes.description,
-      displayCategories: this.getType(),
+      description: this.attributes.description || DEFAULT_DESCRIPTION,
+      manufacturerName: MANUFACTURER,
+      displayCategories: [
+        this.getType()
+      ],
       cookie: {},
       capabilities: [
         ...this.getCapabilities(),

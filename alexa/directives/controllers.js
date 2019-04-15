@@ -8,6 +8,7 @@ const deviceCollection = require('../../iot/collection')
 module.exports = async (directive) => {
   const command = `${directive.header.namespace}.${directive.header.name}`
   const deviceId = directive.endpoint.endpointId
+  const scope = directive.endpoint.scope
 
   const header = directive.header
   let payload = {}
@@ -29,6 +30,7 @@ module.exports = async (directive) => {
         message: `Command ${command} not handled for device ${deviceId}`
       }
     } else {
+      header.namespace = 'Alexa'
       header.name = 'Response'
       context = {
         properties: await device.getState()
@@ -41,6 +43,7 @@ module.exports = async (directive) => {
     event: {
       header: header,
       endpoint: {
+        scope,
         endpointId: deviceId
       },
       payload: payload
