@@ -28,16 +28,15 @@ const directive = {
  * @param {Object} event
  */
 const fulfillment = async (event) => {
+  const namespace = event.directive.header.namespace
   let response = {}
-  switch (event.directive.header.namespace) {
+
+  switch (namespace) {
     case 'Alexa.Authorization':
       response = await directive.authorization(event.directive)
       break
     case 'Alexa.Discovery':
       response = await directive.discovery(event.directive)
-      break
-    case 'Alexa.PowerController':
-      response = await directive.controllers(event.directive)
       break
     case 'Alexa':
       switch (event.directive.header.name) {
@@ -47,7 +46,11 @@ const fulfillment = async (event) => {
       }
       break
     default:
-      throw createError.BadRequest()
+      if (namespace.endsWith('Controller')) {
+        response = await directive.controllers(event.directive)
+      } else {
+        throw createError.BadRequest()
+      }
   }
 
   return response

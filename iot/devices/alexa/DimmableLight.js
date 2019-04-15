@@ -45,9 +45,14 @@ module.exports = class DimmableLight extends LightDevice {
       this.shadow.brightness = 100
     }
 
-    return Object.assign(parentState, {
-      brightness: this.shadow.brightness
+    parentState.push({
+      'namespace': 'Alexa.BrightnessController',
+      'name': 'brightness',
+      'value': this.shadow.brightness,
+      'timeOfSample': this.timeOfSample,
+      'uncertaintyInMilliseconds': this.uncertaintyInMilliseconds
     })
+    return parentState
   }
 
   /**

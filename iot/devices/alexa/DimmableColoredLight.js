@@ -55,14 +55,25 @@ module.exports = class DimmableColoredLight extends DimmableLight {
     if (this.shadow.colorTemperature === undefined || this.shadow.colorTemperature === null) {
       this.shadow.colorTemperature = 2200
     }
-    return Object.assign(parentState, {
-      color: {
-        hue: hsv[0],
-        saturation: hsv[1],
-        brightness: hsv[2]
+    parentState.push({
+      'namespace': 'Alexa.ColorController',
+      'name': 'color',
+      'value': {
+        'hue': hsv[0],
+        'saturation': hsv[1],
+        'brightness': hsv[2]
       },
-      colorTemperatureInKelvin: parseInt(this.shadow.colorTemperature)
+      'timeOfSample': this.timeOfSample,
+      'uncertaintyInMilliseconds': this.uncertaintyInMilliseconds
     })
+    parentState.push({
+      'namespace': 'Alexa.ColorTemperatureController',
+      'name': 'colorTemperatureInKelvin',
+      'value': parseInt(this.shadow.colorTemperature),
+      'timeOfSample': this.timeOfSample,
+      'uncertaintyInMilliseconds': this.uncertaintyInMilliseconds
+    })
+    return parentState
   }
 
   /**

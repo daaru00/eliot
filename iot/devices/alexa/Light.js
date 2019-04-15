@@ -45,9 +45,14 @@ module.exports = class Light extends BaseAlexaDevice {
     if (this.shadow.on === undefined || this.shadow.on === null) {
       this.shadow.on = false
     }
-    return Object.assign(parentState, {
-      powerState: this.shadow.on === true
+    parentState.push({
+      'namespace': 'Alexa.PowerController',
+      'name': 'powerState',
+      'value': this.shadow.on ? 'ON' : 'OFF',
+      'timeOfSample': this.timeOfSample,
+      'uncertaintyInMilliseconds': this.uncertaintyInMilliseconds
     })
+    return parentState
   }
 
   /**

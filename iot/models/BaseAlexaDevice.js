@@ -9,6 +9,16 @@ const DEFAULT_CAPABILITIES = []
  */
 module.exports = class BaseAlexaDevice extends BaseDevice {
   /**
+   * Constructor
+   *
+   * @param {Object} iotThing
+   */
+  constructor (iotThing) {
+    super(iotThing)
+    this.uncertaintyInMilliseconds = 500
+    this.timeOfSample = new Date().toJSON()
+  }
+  /**
    * Decorate device for Google Home
    *
    * @returns {Object}
@@ -44,5 +54,13 @@ module.exports = class BaseAlexaDevice extends BaseDevice {
    */
   getCapabilities () {
     return DEFAULT_CAPABILITIES
+  }
+
+  /**
+   * Default state
+   */
+  async getState () {
+    await super.getState()
+    return []
   }
 }

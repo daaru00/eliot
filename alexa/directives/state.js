@@ -1,34 +1,33 @@
+const deviceCollection = require('../../iot/collection')
 
 /**
  * Directive handler
  *
  * @param {Object} directive
  */
-module.exports = async (directive) => ({
-  event: {
-    header: {
-      messageId: directive.header.messageId + '-R',
-      namespace: 'Alexa',
-      name: 'StateReport',
-      payloadVersion: '3'
-    },
-    endpoint: {
-      scope: {
-        type: 'BearerToken',
-        token: 'access-token-from-Amazon'
-      },
-      endpointId: 'demo_id',
-      cookie: {}
-    },
-    payload: {}
-  },
-  context: {
-    properties: [{
-      namespace: 'Alexa.PowerController',
-      name: 'powerState',
-      value: 'ON',
-      timeOfSample: '2017-09-03T16:20:50.52Z',
-      uncertaintyInMilliseconds: 50
-    }]
+module.exports = async (directive) => {
+  const deviceId = directive.endpoint.endpointId
+
+  const device = await deviceCollection.loadSingleDevice('alexa', deviceId)
+  if (device === null) {
+    return null
   }
-})
+  const state = await device.getState()
+
+  const header = directive.header
+  header.name = 'StateReport'
+
+  return {
+    event: {
+      header: header,
+      endpoint: {
+        endpointId: deviceId,
+        cookie: {}
+      },
+      payload: {}
+    },
+    context: {
+      properties: state
+    }
+  }
+}

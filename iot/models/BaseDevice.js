@@ -10,7 +10,6 @@ module.exports = class BaseDevice {
    * Constructor
    *
    * @param {Object} iotThing
-   * @param {Object} endpoint
    */
   constructor ({ thingName, thingArn, attributes }) {
     this.name = thingName

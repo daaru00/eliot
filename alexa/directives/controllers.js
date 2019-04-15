@@ -1,3 +1,4 @@
+const deviceCollection = require('../../iot/collection')
 
 /**
  * Directive handler
@@ -5,45 +6,44 @@
  * @param {Object} directive
  */
 module.exports = async (directive) => {
-  // get device ID passed in during discovery
-  const requestMethod = directive.header.name
-  directive.header.namespace = 'Alexa'
-  directive.header.name = 'Response'
-  directive.header.messageId = directive.header.messageId + '-R'
-  // get user token pass in request
-  const requestToken = directive.endpoint.scope.token
-  let powerResult
+  const command = `${directive.header.namespace}.${directive.header.name}`
+  const deviceId = directive.endpoint.endpointId
 
-  if (requestMethod === 'TurnOn') {
-    // Make the call to your device cloud for control
-    // powerResult = stubControlFunctionToYourCloud(endpointId, token, request);
-    powerResult = 'ON'
-  } else if (requestMethod === 'TurnOff') {
-    // Make the call to your device cloud for control and check for success
-    // powerResult = stubControlFunctionToYourCloud(endpointId, token, request);
-    powerResult = 'OFF'
+  const header = directive.header
+  let payload = {}
+  let context = {}
+
+  const device = await deviceCollection.loadSingleDevice('alexa', deviceId)
+  if (device === null) {
+    header.name = 'ErrorResponse'
+    payload = {
+      type: 'NO_SUCH_ENDPOINT',
+      message: `Device ${command} not found`
+    }
+  } else {
+    const handled = await device.execute(command, directive.payload)
+    if (handled === false) {
+      header.name = 'ErrorResponse'
+      payload = {
+        type: 'INVALID_DIRECTIVE',
+        message: `Command ${command} not handled for device ${deviceId}`
+      }
+    } else {
+      header.name = 'Response'
+      context = {
+        properties: await device.getState()
+      }
+    }
   }
-  const contextResult = {
-    properties: [{
-      namespace: 'Alexa.PowerController',
-      name: 'powerState',
-      value: powerResult,
-      timeOfSample: '2017-09-03T16:20:50.52Z', // retrieve from result.
-      uncertaintyInMilliseconds: 50
-    }]
-  }
+
   return {
-    context: contextResult,
+    context,
     event: {
-      header: directive.header,
+      header: header,
       endpoint: {
-        scope: {
-          type: 'BearerToken',
-          token: requestToken
-        },
-        endpointId: 'demo_id'
+        endpointId: deviceId
       },
-      payload: {}
+      payload: payload
     }
   }
 }
