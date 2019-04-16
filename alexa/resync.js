@@ -7,11 +7,12 @@ const RefreshToken = require('../auth/models/RefreshToken')
 const AccessToken = require('../auth/models/AccessToken')
 const deviceCollection = require('../iot/collection')
 
-const EVENT_ENDPOINTS = [
-  'https://api.amazonalexa.com/v3/events',
-  'https://api.eu.amazonalexa.com/v3/events',
-  'https://api.fe.amazonalexa.com/v3/events'
-]
+const ALEXA_CLIENT_ID = process.env.ALEXA_CLIENT_ID
+const ALEXA_CLIENT_SECRET = process.env.ALEXA_CLIENT_SECRET
+
+const EVENT_ENDPOINT_US = 'https://api.amazonalexa.com/v3/events'
+const EVENT_ENDPOINT_EU = 'https://api.eu.amazonalexa.com/v3/events'
+const EVENT_ENDPOINT_FE = 'https://api.fe.amazonalexa.com/v3/events'
 const TOKEN_ENDPOINT = 'https://api.amazon.com/auth/o2/token'
 
 /**
@@ -52,7 +53,23 @@ const askResync = async (event) => {
     throw createError.BadRequest(`Action ${event.action} not supported`)
   }
 
-  const response = await got.post(EVENT_ENDPOINTS[1], { // TODO endpoint is region, token depends from region
+  let endpoint
+  switch (process.env.ALEXA_ENDPOINT) {
+    case 'NorthAmerica':
+      endpoint = EVENT_ENDPOINT_US
+      break
+    case 'Europe':
+      endpoint = EVENT_ENDPOINT_EU
+      break
+    case 'FarEast':
+      endpoint = EVENT_ENDPOINT_FE
+      break
+    default:
+      endpoint = EVENT_ENDPOINT_US
+      break
+  }
+
+  const response = await got.post(endpoint, {
     headers: {
       Authorization: `Bearer ${accessToken}`
     },
@@ -80,7 +97,9 @@ const askNewAccessToken = async () => {
     form: true,
     body: {
       grant_type: 'refresh_token',
-      refresh_token: refreshToken
+      refresh_token: refreshToken,
+      client_id: ALEXA_CLIENT_ID,
+      client_secret: ALEXA_CLIENT_SECRET
     }
   })
   response = JSON.parse(response.body)

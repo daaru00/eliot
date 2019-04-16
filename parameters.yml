@@ -29,3 +29,11 @@ Parameters:
     Type: String
     Description: "Alexa client secret"
     Default: "${self:custom.credentials.alexaClientSecret}"
+  AlexaEndpoint:
+    Type: String
+    Description: "Alexa client secret"
+    Default: "${self:custom.credentials.alexaEndpoint}"
+    AllowedValues: 
+      - NorthAmerica
+      - Europe
+      - FarEast
