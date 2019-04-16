@@ -5,7 +5,7 @@ module.exports = {
   onError: async (handler) => {
     let payload = {
       'type': 'INTERNAL_ERROR',
-      'message': 'Access token not found'
+      'message': 'An internal error occured'
     }
     if (handler.error.statusCode === 400) {
       payload = {

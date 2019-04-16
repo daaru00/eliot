@@ -21,3 +21,11 @@ Parameters:
     Type: String
     Description: "Alexa skill ID"
     Default: "${self:custom.credentials.alexaSkillId}"
+  AlexaClientId:
+    Type: String
+    Description: "Alexa clinet ID"
+    Default: "${self:custom.credentials.alexaClientId}"
+  AlexaClientSecret:
+    Type: String
+    Description: "Alexa client secret"
+    Default: "${self:custom.credentials.alexaClientSecret}"

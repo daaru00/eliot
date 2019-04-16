@@ -14,7 +14,7 @@ describe('Auth', function () {
   /**
    * Auth code
    */
-  describe('Retrive auth code', async function () {
+  describe('Login and retrive auth code', async function () {
     let response = {}
 
     before(function (done) {

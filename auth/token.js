@@ -69,6 +69,7 @@ const generateTokens = async (event) => {
       body: JSON.stringify({
         token_type: 'Bearer',
         access_token: tokens.accessToken,
+        refresh_token: tokens.refreshToken,
         expires_in: tokens.expiresIn
       })
     }

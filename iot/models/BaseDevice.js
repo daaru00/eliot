@@ -79,7 +79,7 @@ module.exports = class BaseDevice {
    * Default description
    */
   getDescription () {
-    return {}
+    return null
   }
 
   /**

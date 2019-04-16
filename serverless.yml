@@ -26,15 +26,18 @@ custom:
     refreshTokens:
       name: ${self:service}-${self:provider.stage}-refreshTokens
       primaryKey:
+        name: provider
+        type: 'S'
+      rangeKey:
         name: refreshToken
         type: 'S'
     accessTokens:
       name: ${self:service}-${self:provider.stage}-accessTokens
       primaryKey:
-        name: accessToken
+        name: provider
         type: 'S'
       rangeKey:
-        name: refreshToken
+        name: accessToken
         type: 'S'
       ttl: 
         attribute: ttl
@@ -170,13 +173,24 @@ functions:
   alexa:
     handler: alexa/fulfillment.handler
     environment:
+      TABLE_REFRESH_TOKENS: ${self:custom.tables.refreshTokens.name}
       TABLE_ACCESS_TOKENS: ${self:custom.tables.accessTokens.name}
+      ALEXA_CLIENT_ID:
+        Ref: AlexaClientId
+      ALEXA_CLIENT_SECRET:
+        Ref: AlexaClientSecret
     iamRoleStatements:
       - Effect: Allow
         Action:
           - dynamodb:Query
+          - dynamodb:PutItem
         Resource: 
           - "Fn::GetAtt": ["TableAccessTokens", "Arn"]
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource:
+          - "Fn::GetAtt": ["TableRefreshTokens", "Arn"]
       - Effect: Allow
         Action:
           - iot:ListThings
@@ -194,6 +208,30 @@ functions:
             resultTtlInSeconds: 300
             identitySource: method.request.header.Authorization
             type: token
+  
+  alexaResync:
+    handler: alexa/resync.handler
+    environment:
+      TABLE_REFRESH_TOKENS: ${self:custom.tables.refreshTokens.name}
+      TABLE_ACCESS_TOKENS: ${self:custom.tables.accessTokens.name}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:PutItem
+        Resource: 
+          - "Fn::GetAtt": ["TableAccessTokens", "Arn"]
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: 
+          - "Fn::GetAtt": ["TableRefreshTokens", "Arn"]
+      - Effect: Allow
+        Action:
+          - iot:ListThings
+        Resource: '*'
+    events:
+      - sns: ${self:service}-${self:provider.stage}-resync
 
 # Resources
 

@@ -51,7 +51,7 @@ class IoTCollection {
         response.things.map(thing => deviceFactory(provider, thing.attributes[ATTRIBUTE_TYPE_NAME], thing).getDescription())
       )
     } while (response.nextToken !== null)
-    return this.devices
+    return this.devices.filter(device => device !== null)
   }
 
   /**
