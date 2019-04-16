@@ -1,3 +1,4 @@
+const createError = require('http-errors')
 const deviceCollection = require('../../iot/collection')
 
 /**
@@ -16,19 +17,11 @@ module.exports = async (directive) => {
 
   const device = await deviceCollection.loadSingleDevice('alexa', deviceId)
   if (device === null) {
-    header.name = 'ErrorResponse'
-    payload = {
-      type: 'NO_SUCH_ENDPOINT',
-      message: `Device ${command} not found`
-    }
+    throw createError.NotFound()
   } else {
     const handled = await device.execute(command, directive.payload)
     if (handled === false) {
-      header.name = 'ErrorResponse'
-      payload = {
-        type: 'INVALID_DIRECTIVE',
-        message: `Command ${command} not handled for device ${deviceId}`
-      }
+      throw createError.BadRequest()
     } else {
       header.namespace = 'Alexa'
       header.name = 'Response'

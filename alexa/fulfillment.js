@@ -2,6 +2,7 @@ const middy = require('middy')
 const createError = require('http-errors')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
 const httpTransformer = require('./transformers/http')
+const errorTransformer = require('./transformers/error')
 
 /**
  * Validations
@@ -62,5 +63,6 @@ const handler = middy(fulfillment)
   .use(validation.token)
   .use(validation.directive)
   .use(validation.namespace)
+  .use(errorTransformer)
 
 module.exports = { handler }

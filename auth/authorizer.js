@@ -15,12 +15,12 @@ const checkAuthorizationToken = {
   before: async (handler) => {
     const authorizationToken = handler.event.authorizationToken
     if (authorizationToken === undefined || authorizationToken === null || authorizationToken.trim().length === 0) {
-      handler.callback('Unauthorized')
+      handler.callback('invalid_grant')
     }
 
     const accessToken = authorizationToken.replace('Bearer ', '')
     if (accessToken.length !== 40 || await AccessToken.verify(accessToken) === false) {
-      handler.callback('Unauthorized')
+      handler.callback('invalid_grant')
     }
   }
 }

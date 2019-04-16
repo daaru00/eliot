@@ -1,3 +1,4 @@
+const createError = require('http-errors')
 const deviceCollection = require('../../iot/collection')
 
 /**
@@ -10,7 +11,7 @@ module.exports = async (directive) => {
 
   const device = await deviceCollection.loadSingleDevice('alexa', deviceId)
   if (device === null) {
-    return null
+    throw createError.NotFound()
   }
   const state = await device.getState()
 
