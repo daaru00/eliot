@@ -80,3 +80,24 @@ Outputs:
     Description: Google Home Fulfillment URL
     Export:
       Name: GoogleHomeFulfillmentEndpoint
+  ServiceEndpoint:
+    Description: "URL of the service endpoint"
+    Value: 
+      "Fn::Join": [
+        "",
+        [
+          "https://",
+          {
+            "Ref": "ApiGatewayRestApi"
+          },
+          ".execute-api.",
+          {
+            "Ref": "AWS::Region"
+          },
+          ".",
+          {
+            "Ref": "AWS::URLSuffix"
+          },
+          "/test"
+        ]
+      ]

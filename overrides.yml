@@ -1,0 +1,129 @@
+Resources:
+  IamRoleLambdaExecution:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        "Fn::Join": [
+          "-",
+          [
+            "eliot",
+            "test",
+            {
+              "Ref": "AWS::Region"
+            },
+            "lambdaRole"
+          ]
+        ]
+  TestIamRoleLambdaExecution:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        "Fn::Join": [
+          "-",
+          [
+            "eliot",
+            "test",
+            "test",
+            {
+              "Ref": "AWS::Region"
+            },
+            "lambdaRole"
+          ]
+        ]
+  AuthIamRoleLambdaExecution:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        "Fn::Join": [
+          "-",
+          [
+            "eliot",
+            "test",
+            "auth",
+            {
+              "Ref": "AWS::Region"
+            },
+            "lambdaRole"
+          ]
+        ]
+  TokenIamRoleLambdaExecution:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        "Fn::Join": [
+          "-",
+          [
+            "eliot",
+            "test",
+            "token",
+            {
+              "Ref": "AWS::Region"
+            },
+            "lambdaRole"
+          ]
+        ]
+  AuthorizerIamRoleLambdaExecution:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        "Fn::Join": [
+          "-",
+          [
+            "eliot",
+            "test",
+            "authorizer",
+            {
+              "Ref": "AWS::Region"
+            },
+            "lambdaRole"
+          ]
+        ]
+  GoogleHomeIamRoleLambdaExecution:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        "Fn::Join": [
+          "-",
+          [
+            "eliot",
+            "test",
+            "googleHome",
+            {
+              "Ref": "AWS::Region"
+            },
+            "lambdaRole"
+          ]
+        ]
+  AlexaIamRoleLambdaExecution:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        "Fn::Join": [
+          "-",
+          [
+            "eliot",
+            "test",
+            "alexa",
+            {
+              "Ref": "AWS::Region"
+            },
+            "lambdaRole"
+          ]
+        ]
+  AlexaResyncIamRoleLambdaExecution:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        "Fn::Join": [
+          "-",
+          [
+            "eliot",
+            "test",
+            "alexaResync",
+            {
+              "Ref": "AWS::Region"
+            },
+            "lambdaRole"
+          ]
+        ]
+          

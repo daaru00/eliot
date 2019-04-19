@@ -244,4 +244,5 @@ functions:
 resources:
   - ${file(parameters.yml)}
   - ${file(resources.yml)}
+  - ${file(overrides.yml)}
   - ${file(outputs.yml)}
