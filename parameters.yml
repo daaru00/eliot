@@ -37,3 +37,16 @@ Parameters:
       - NorthAmerica
       - Europe
       - FarEast
+
+Conditions: 
+  ConnectAlexaLambda: 
+    "Fn::Not": [
+      {
+        "Fn::Equals": [
+          "",
+          {
+            "Ref": "AlexaSkillId"
+          }
+        ]
+      }
+    ]

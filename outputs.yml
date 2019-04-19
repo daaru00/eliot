@@ -80,6 +80,12 @@ Outputs:
     Description: Google Home Fulfillment URL
     Export:
       Name: GoogleHomeFulfillmentEndpoint
+  AlexaLambdaARN:
+    Value:
+      "Fn::GetAtt": [
+        "AlexaLambdaFunction",
+        "Arn"
+      ]
   ServiceEndpoint:
     Description: "URL of the service endpoint"
     Value: 

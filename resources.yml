@@ -1,6 +1,7 @@
 Resources:
   AlexaLambdaPermissionAlexaSmartHome:
     Type: "AWS::Lambda::Permission"
+    Condition: ConnectAlexaLambda
     Properties: 
       FunctionName: 
         "Fn::GetAtt": ["AlexaLambdaFunction", "Arn"]
