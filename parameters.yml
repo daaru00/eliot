@@ -1,14 +1,22 @@
 Parameters: 
+  ServerlessDeploymentBucketReplace: 
+    Type: String 
+    Description: "S3 Deployment Bucket"
+    Default: "eliot-cloudformation"
   ClientId:
     Type: String 
     Description: "OAuth2.0 client ID"
     Default: "${self:custom.credentials.clientId}"
     MinLength: 20
+    AllowedPattern: ".+"
+    ConstraintDescription: "Client ID is required and must have 20 chars"
   ClientSecret:
     Type: String
     Description: "OAuth2.0 client secret"
     Default: "${self:custom.credentials.clientSecret}"
     MinLength: 40
+    AllowedPattern: ".+"
+    ConstraintDescription: "Client secret is required and must have 40 chars"
   GoogleProjectId:
     Type: String
     Description: "Google project identifier"
@@ -50,3 +58,32 @@ Conditions:
         ]
       }
     ]
+
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "OAuth Credentials"
+        Parameters: 
+          - ClientId
+          - ClientSecret
+      - 
+        Label: 
+          default: "Google Home"
+        Parameters: 
+          - GoogleProjectId
+          - GoogleAPIKey
+      - 
+        Label: 
+          default: "Alexa"
+        Parameters: 
+          - AlexaSkillId
+          - AlexaClientId
+          - AlexaClientSecret
+          - AlexaEndpoint
+      - 
+        Label: 
+          default: "Infrastructure"
+        Parameters: 
+          - ServerlessDeploymentBucketReplace

@@ -49,6 +49,7 @@ provider:
   runtime: nodejs8.10
   stage: ${opt:stage,self:custom.stage}
   region: ${opt:region,self:custom.region}
+  profile: personal
 
 # Functions
 
