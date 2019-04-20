@@ -1,6 +1,7 @@
 const middy = require('middy')
 const got = require('got')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const iotEventValidation = require('../common/validations/iotEvent')
 
 const ENDPOINT = 'https://homegraph.googleapis.com/v1/devices:requestSync'
 
@@ -12,6 +13,7 @@ const askResync = async () => {
     return
   }
   const response = await got.post(`${ENDPOINT}?key=${process.env.GOOGLE_APY_KEY}`, {
+    json: true,
     body: {
       agentUserId: process.env.ACCOUNT_ID || 'eliot-user',
       async: false
@@ -23,5 +25,6 @@ const askResync = async () => {
 
 const handler = middy(askResync)
   .use(loggerMiddleware)
+  .use(iotEventValidation)
 
 module.exports = { handler }

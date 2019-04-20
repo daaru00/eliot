@@ -169,7 +169,9 @@ functions:
       GOOGLE_APY_KEY:
         Ref: GoogleAPIKey
     events:
-      - sns: ${self:service}-${self:provider.stage}-resync
+      - iot:
+          sql: "SELECT * FROM '$aws/events/thing/#'"
+          enabled: true
 
   alexa:
     handler: alexa/fulfillment.handler
@@ -238,7 +240,9 @@ functions:
           - iot:ListThings
         Resource: '*'
     events:
-      - sns: ${self:service}-${self:provider.stage}-resync
+      - iot:
+          sql: "SELECT * FROM '$aws/events/thing/#'"
+          enabled: true
 
 # Resources
 

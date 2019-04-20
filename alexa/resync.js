@@ -3,6 +3,7 @@ const got = require('got')
 const createError = require('http-errors')
 const randomstring = require('randomstring')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const iotEventValidation = require('../common/validations/iotEvent')
 const RefreshToken = require('../auth/models/RefreshToken')
 const AccessToken = require('../auth/models/AccessToken')
 const deviceCollection = require('../iot/collection')
@@ -41,13 +42,13 @@ const askResync = async (event) => {
     }
   }
 
-  if (event.action === 'add' || event.action === 'update') {
+  if (event.operation === 'CREATED' || event.operation === 'UPDATED') {
     header.name = 'AddOrUpdateReport'
     payload.endpoints = await deviceCollection.list('alexa')
-  } else if (event.action === 'delete') {
+  } else if (event.operation === 'DELETED') {
     header.name = 'DeleteReport'
     payload.endpoints = [{
-      endpointId: event.deviceId
+      endpointId: event.thingName
     }]
   } else {
     throw createError.BadRequest(`Action ${event.action} not supported`)
@@ -110,5 +111,6 @@ const askNewAccessToken = async () => {
 
 const handler = middy(askResync)
   .use(loggerMiddleware)
+  .use(iotEventValidation)
 
 module.exports = { handler }
