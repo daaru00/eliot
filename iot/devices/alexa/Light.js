@@ -1,9 +1,9 @@
-const BaseAlexaDevice = require('../../models/BaseAlexaDevice')
+const Switch = require('./Switch')
 
 /**
  * Light Device
  */
-module.exports = class Light extends BaseAlexaDevice {
+module.exports = class Light extends Switch {
   /**
    * Get Type
    *
@@ -11,73 +11,5 @@ module.exports = class Light extends BaseAlexaDevice {
    */
   getType () {
     return 'LIGHT'
-  }
-
-  /**
-   * Get capabilities
-   *
-   * @returns {String[]}
-   */
-  getCapabilities () {
-    return [
-      {
-        'type': 'AlexaInterface',
-        'interface': 'Alexa.PowerController',
-        'version': '3',
-        'properties': {
-          'supported': [
-            {
-              'name': 'powerState'
-            }
-          ],
-          'proactivelyReported': this.reportState,
-          'retrievable': true
-        }
-      }
-    ]
-  }
-
-  /**
-   * Get state
-   */
-  async getState () {
-    const parentState = await super.getState()
-    if (this.shadow.on === undefined || this.shadow.on === null) {
-      this.shadow.on = false
-    }
-    parentState.push({
-      'namespace': 'Alexa.PowerController',
-      'name': 'powerState',
-      'value': this.shadow.on ? 'ON' : 'OFF',
-      'timeOfSample': this.timeOfSample,
-      'uncertaintyInMilliseconds': this.uncertaintyInMilliseconds
-    })
-    return parentState
-  }
-
-  /**
-   * Execute command
-   *
-   * @param {String} command
-   * @param {Object} payload
-   * @returns {Boolean}
-   */
-  async execute (command, payload) {
-    if (await super.execute(command, payload)) {
-      return true
-    }
-
-    switch (command) {
-      case 'Alexa.PowerController.TurnOn':
-        this.shadow.on = true
-        await this.saveShadow()
-        return true
-      case 'Alexa.PowerController.TurnOff':
-        this.shadow.on = false
-        await this.saveShadow()
-        return true
-    }
-
-    return false
   }
 }
