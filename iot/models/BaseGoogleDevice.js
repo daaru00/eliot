@@ -66,6 +66,8 @@ module.exports = class BaseGoogleDevice extends BaseDevice {
 
   /**
    * Default state
+   *
+   * @return {Object}
    */
   async getState () {
     await this.loadShadow()

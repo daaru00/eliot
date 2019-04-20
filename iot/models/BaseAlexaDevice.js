@@ -47,6 +47,8 @@ module.exports = class BaseAlexaDevice extends BaseDevice {
 
   /**
    * Default type
+   *
+   * @returns {String}
    */
   getType () {
     return DEFAULT_TYPE
@@ -54,6 +56,8 @@ module.exports = class BaseAlexaDevice extends BaseDevice {
 
   /**
    * Default capabilities
+   *
+   * @returns {Array}
    */
   getCapabilities () {
     return DEFAULT_CAPABILITIES
@@ -61,6 +65,8 @@ module.exports = class BaseAlexaDevice extends BaseDevice {
 
   /**
    * Default state
+   *
+   * @return {Array}
    */
   async getState () {
     await super.getState()

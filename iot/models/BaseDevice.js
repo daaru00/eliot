@@ -77,6 +77,8 @@ module.exports = class BaseDevice {
 
   /**
    * Default description
+   *
+   * @returns {String}
    */
   getDescription () {
     return null
@@ -84,6 +86,8 @@ module.exports = class BaseDevice {
 
   /**
    * Default state
+   *
+   * @returns {Object}
    */
   async getState () {
     await this.loadShadow()
