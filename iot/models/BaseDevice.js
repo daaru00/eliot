@@ -50,7 +50,7 @@ module.exports = class BaseDevice {
     }).promise()
     let payload = JSON.parse(response.payload || '{}')
     payload = payload || { state: { reported: {} } }
-    this.shadow = payload.state.reported
+    this.shadow = payload.state.reported || {}
   }
 
   /**
