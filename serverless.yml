@@ -12,6 +12,7 @@ plugins:
 package:
   exclude:
     - 'credentials.yml'
+    - 'modules/**'
 
 # Configurations
 
