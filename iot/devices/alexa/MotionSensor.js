@@ -1,16 +1,16 @@
 const BaseAlexaDevice = require('../../models/BaseAlexaDevice')
 
 /**
- * TemperatureSensor Device
+ * MotionSensor Device
  */
-module.exports = class TemperatureSensor extends BaseAlexaDevice {
+module.exports = class MotionSensor extends BaseAlexaDevice {
   /**
    * Get Type
    *
    * @return {String}
    */
   getType () {
-    return 'TEMPERATURE_SENSOR'
+    return 'MOTION_SENSOR'
   }
 
   /**
@@ -22,15 +22,15 @@ module.exports = class TemperatureSensor extends BaseAlexaDevice {
     return [
       {
         'type': 'AlexaInterface',
-        'interface': 'Alexa.TemperatureSensor',
+        'interface': 'Alexa.MotionSensor',
         'version': '3',
         'properties': {
           'supported': [
             {
-              'name': 'temperature'
+              'name': 'detectionState'
             }
           ],
-          'proactivelyReported': this.reportState,
+          'proactivelyReported': true,
           'retrievable': true
         }
       }
@@ -42,16 +42,13 @@ module.exports = class TemperatureSensor extends BaseAlexaDevice {
    */
   async getState () {
     const parentState = await super.getState()
-    if (isNaN(this.shadow.temperature)) {
-      this.shadow.temperature = 0
+    if (this.shadow.detected === undefined || this.shadow.detected === null) {
+      this.shadow.detected = false
     }
     parentState.push({
-      'namespace': 'Alexa.TemperatureSensor',
-      'name': 'temperature',
-      'value': {
-        'value': this.shadow.temperature,
-        'scale': this.attributes.temperatureUnit === 'F' ? 'FAHRENHEIT' : 'CELSIUS'
-      },
+      'namespace': 'Alexa.MotionSensor',
+      'name': 'detectionState',
+      'value': this.shadow.detected ? 'DETECTED' : 'NOT_DETECTED',
       'timeOfSample': this.timeOfSample,
       'uncertaintyInMilliseconds': this.uncertaintyInMilliseconds
     })

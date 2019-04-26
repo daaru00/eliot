@@ -69,18 +69,19 @@ const askResync = async (event) => {
       endpoint = EVENT_ENDPOINT_US
       break
   }
-
+  const request = {
+    event: {
+      header,
+      payload
+    }
+  }
+  console.log('sync request', JSON.stringify(request))
   const response = await got.post(endpoint, {
     headers: {
       Authorization: `Bearer ${accessToken}`
     },
     json: true,
-    body: {
-      event: {
-        header,
-        payload
-      }
-    }
+    body: request
   })
   console.log('sync response', JSON.stringify(response.body))
   return response.body

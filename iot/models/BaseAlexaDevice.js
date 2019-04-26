@@ -17,7 +17,6 @@ module.exports = class BaseAlexaDevice extends BaseDevice {
   constructor (iotThing) {
     super(iotThing)
     this.uncertaintyInMilliseconds = 500
-    this.timeOfSample = new Date().toJSON()
   }
   /**
    * Decorate device for Google Home
