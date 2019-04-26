@@ -83,7 +83,7 @@ module.exports = class DimmableLight extends LightDevice {
         await this.saveShadow()
         return true
       case 'Alexa.BrightnessController.SetBrightness':
-        this.shadow.brightness = payload.brightness
+        this.shadow.brightness = parseInt(payload.brightness)
         await this.saveShadow()
         return true
     }

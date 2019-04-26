@@ -4,6 +4,8 @@ const SUPPORTED_NAMESPACE = [
   'Alexa.Authorization',
   'Alexa.Discovery',
   'Alexa.PowerController',
+  'Alexa.BrightnessController',
+  'Alexa.ColorController',
   'Alexa'
 ]
 

@@ -23,20 +23,13 @@ module.exports = class DimmableColoredLight extends DimmableLight {
   async getState () {
     const parentState = await super.getState()
     this.shadow.color = this.shadow.color || {}
-    this.shadow.color = Object.assign(this.shadow.color, { r: 0, g: 0, b: 0 })
-    const hsv = colorConvert.rgb.hsv(this.shadow.color.r, this.shadow.color.g, this.shadow.color.b)
+    this.shadow.color = Object.assign({ r: 255, g: 255, b: 255 }, this.shadow.color || {})
+    const rgbHex = colorConvert.rgb.hex(this.shadow.color.r, this.shadow.color.g, this.shadow.color.b)
     if (this.shadow.colorTemperature === undefined || this.shadow.colorTemperature === null) {
       this.shadow.colorTemperature = 2200
     }
     return Object.assign(parentState, {
-      color: {
-        spectrumHsv: {
-          hue: hsv[0],
-          saturation: hsv[1],
-          value: hsv[2]
-        }
-      },
-      temperatureK: parseInt(this.shadow.colorTemperature)
+      spectrumRGB: parseInt(rgbHex, 16)
     })
   }
 
@@ -54,7 +47,12 @@ module.exports = class DimmableColoredLight extends DimmableLight {
 
     switch (command) {
       case 'action.devices.commands.ColorAbsolute':
-        const rgb = colorConvert.hsv.rgb([payload.spectrumHSV.hue, payload.spectrumHSV.saturation, payload.spectrumHSV.value])
+        let rgb = []
+        if (payload.color.spectrumRGB) {
+          rgb = colorConvert.hex.rgb(parseInt(payload.color.spectrumRGB).toString(16))
+        } else if (payload.color.spectrumHSV) {
+          rgb = colorConvert.hsv.rgb([payload.color.spectrumHSV.hue, payload.color.spectrumHSV.saturation, payload.color.spectrumHSV.value])
+        }
         this.shadow.colorTemperature = payload.temperature
         this.shadow.color = { r: rgb[0], g: rgb[1], b: rgb[2] }
         await this.saveShadow()
@@ -71,11 +69,7 @@ module.exports = class DimmableColoredLight extends DimmableLight {
    */
   getAttributes () {
     return {
-      colorModel: 'hsv',
-      colorTemperatureRange: {
-        temperatureMinK: this.attributes.temperatureMinK || 2200,
-        temperatureMaxK: this.attributes.temperatureMaxK || 7000
-      }
+      colorModel: 'rgb'
     }
   }
 }

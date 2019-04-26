@@ -48,11 +48,8 @@ module.exports = class DimmableLight extends LightDevice {
     }
 
     switch (command) {
-      case 'action.devices.commands.Brightness':
-        if (this.shadow.brightness === undefined || this.shadow.brightness === null) {
-          this.shadow.brightness = 0
-        }
-        this.shadow.brightness = parseInt(this.shadow.brightness)
+      case 'action.devices.commands.BrightnessAbsolute':
+        this.shadow.brightness = parseInt(payload.brightness)
         if (this.shadow.brightness < 0) {
           this.shadow.brightness = 0
         } else if (this.shadow.brightness > 100) {
