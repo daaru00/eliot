@@ -1,0 +1,8 @@
+parameters:
+  ClientId: 'required'
+  ClientSecret: 'required'
+  GoogleProjectId: 'optional'
+  GoogleAPIKey: 'optional'
+  AlexaSkillId: 'optional'
+  AlexaClientId: 'optional'
+  AlexaClientSecret: 'optional'

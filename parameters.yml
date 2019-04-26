@@ -1,8 +1,4 @@
 Parameters: 
-  ServerlessDeploymentBucketReplace: 
-    Type: String 
-    Description: "S3 Deployment Bucket"
-    Default: "eliot-cloudformation"
   ClientId:
     Type: String 
     Description: "OAuth2.0 client ID"
@@ -86,4 +82,4 @@ Metadata:
         Label: 
           default: "Infrastructure"
         Parameters: 
-          - ServerlessDeploymentBucketReplace
+          - ServerlessDeploymentBucket

@@ -7,6 +7,11 @@ frameworkVersion: ">=1.39.0 <2.0.0"
 plugins:
   - serverless-iam-roles-per-function
   - serverless-plugin-dynamodb
+  - serverless-plugin-share
+
+package:
+  exclude:
+    - 'credentials.yml'
 
 # Configurations
 
@@ -14,6 +19,7 @@ custom:
   stage: test
   region: eu-west-1
   credentials: ${file(./credentials.yml)}
+  share: ${file(./share.yml)}
   skipTablePolicy: true
   tables:
     authCodes:

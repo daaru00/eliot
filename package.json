@@ -22,10 +22,11 @@
     "glob": "^7.1.3",
     "got": "^9.6.0",
     "middy": "^0.24.0",
-    "mocha": "^6.1.3",
+    "mocha": "^6.1.4",
     "randomstring": "^1.1.5"
   },
   "scripts": {
+    "postinstall": "ln -s $(pwd)/modules/share/ node_modules/serverless-plugin-share",
     "test:local": "mocha ./test/units",
     "test:remote": "serverless invoke -f test",
     "test:remote:log": "serverless logs -f test",
