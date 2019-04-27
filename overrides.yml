@@ -94,6 +94,22 @@ Resources:
             "lambdaRole"
           ]
         ]
+  GoogleHomeReportIamRoleLambdaExecution:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        "Fn::Join": [
+          "-",
+          [
+            "eliot",
+            "test",
+            "googleHomeReport",
+            {
+              "Ref": "AWS::Region"
+            },
+            "lambdaRole"
+          ]
+        ]
   AlexaIamRoleLambdaExecution:
     Type: "AWS::IAM::Role"
     Properties:
@@ -120,6 +136,22 @@ Resources:
             "eliot",
             "test",
             "alexaResync",
+            {
+              "Ref": "AWS::Region"
+            },
+            "lambdaRole"
+          ]
+        ]
+  AlexaReportIamRoleLambdaExecution:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName:
+        "Fn::Join": [
+          "-",
+          [
+            "eliot",
+            "test",
+            "alexaReport",
             {
               "Ref": "AWS::Region"
             },

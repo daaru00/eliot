@@ -21,6 +21,10 @@ Parameters:
     Type: String
     Description: "Google API key"
     Default: "${self:custom.credentials.googleApiKey}"
+  GoogleJWT:
+    Type: String
+    Description: "Google JWT token"
+    Default: "${self:custom.credentials.googleJWT}"
   AlexaSkillId:
     Type: String
     Description: "Alexa skill ID"
@@ -70,6 +74,7 @@ Metadata:
         Parameters: 
           - GoogleProjectId
           - GoogleAPIKey
+          - GoogleJWT
       - 
         Label: 
           default: "Alexa"

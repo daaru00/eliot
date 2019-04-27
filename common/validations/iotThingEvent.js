@@ -7,7 +7,7 @@ const SUPPORTED_OPERATIONS = [
 ]
 
 /**
- * IoT event validation
+ * IoT thing event validation
  */
 module.exports = {
   before: async (handler) => {

@@ -50,9 +50,14 @@ class AccessToken extends AbstractDbModel {
   async verify (accessToken) {
     const response = await this.query({
       KeyConditionExpression: 'provider = :provider AND accessToken = :accessToken',
+      FilterExpression: '#ttl > :now',
       ExpressionAttributeValues: {
         ':provider': this.providerName || DEFAULT_PROVIDER,
-        ':accessToken': accessToken
+        ':accessToken': accessToken,
+        ':now': Math.floor(new Date().getTime() / 1000)
+      },
+      ExpressionAttributeNames: {
+        '#ttl': 'ttl'
       }
     })
     return response.Items !== undefined && response.Items.length > 0
@@ -84,8 +89,13 @@ class AccessToken extends AbstractDbModel {
   async retrieve () {
     const response = await this.query({
       KeyConditionExpression: 'provider = :provider',
+      FilterExpression: '#ttl > :now',
       ExpressionAttributeValues: {
-        ':provider': this.providerName || DEFAULT_PROVIDER
+        ':provider': this.providerName || DEFAULT_PROVIDER,
+        ':now': Math.floor(new Date().getTime() / 1000)
+      },
+      ExpressionAttributeNames: {
+        '#ttl': 'ttl'
       }
     })
     return (

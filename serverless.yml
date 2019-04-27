@@ -179,6 +179,26 @@ functions:
           sql: "SELECT * FROM '$aws/events/thing/#'"
           enabled: true
 
+  googleHomeReport:
+    handler: googleHome/report.handler
+    environment:
+      ACCOUNT_ID:
+        Ref: AWS::AccountId
+      GOOGLE_JWT:
+        Ref: GoogleJWT
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - iot:DescribeEndpoint
+          - iot:DescribeThing
+          - iot:GetThingShadow
+          - iot:UpdateThingShadow
+        Resource: '*'
+    events:
+      - iot:
+          sql: "SELECT metadata, state.reported as state, topic(3) as thingName FROM '$aws/things/+/shadow/update/accepted' WHERE state.reported <> ''"
+          enabled: true
+
   alexa:
     handler: alexa/fulfillment.handler
     environment:
@@ -248,6 +268,41 @@ functions:
     events:
       - iot:
           sql: "SELECT * FROM '$aws/events/thing/#'"
+          enabled: true
+  
+  alexaReport:
+    handler: alexa/report.handler
+    environment:
+      TABLE_REFRESH_TOKENS: ${self:custom.tables.refreshTokens.name}
+      TABLE_ACCESS_TOKENS: ${self:custom.tables.accessTokens.name}
+      ALEXA_CLIENT_ID:
+        Ref: AlexaClientId
+      ALEXA_CLIENT_SECRET:
+        Ref: AlexaClientSecret
+      ALEXA_ENDPOINT:
+        Ref: AlexaEndpoint
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:PutItem
+        Resource: 
+          - "Fn::GetAtt": ["TableAccessTokens", "Arn"]
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: 
+          - "Fn::GetAtt": ["TableRefreshTokens", "Arn"]
+      - Effect: Allow
+        Action:
+          - iot:DescribeEndpoint
+          - iot:DescribeThing
+          - iot:GetThingShadow
+          - iot:UpdateThingShadow
+        Resource: '*'
+    events:
+      - iot:
+          sql: "SELECT metadata, state.reported as state, topic(3) as thingName FROM '$aws/things/+/shadow/update/accepted' WHERE state.reported <> ''"
           enabled: true
 
 # Resources

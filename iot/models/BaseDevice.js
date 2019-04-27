@@ -17,7 +17,7 @@ module.exports = class BaseDevice {
     this.attributes = attributes
     this.dataClient = undefined
     this.shadow = undefined
-    this.reportState = false // TODO: when notification will be enabled
+    this.reportState = true
     this.timeOfSample = new Date().toJSON()
   }
 
@@ -53,6 +53,18 @@ module.exports = class BaseDevice {
     payload = payload || { state: { reported: {} }, metadata: { timestamp: new Date().getTime() / 1000 } }
     this.shadow = payload.state.reported || {}
     this.timeOfSample = new Date(payload.metadata.timestamp * 1000).toJSON()
+  }
+
+  /**
+   * Set shadow
+   *
+   * @param {Object} stateReported
+   * @param {Number} timestamp
+   */
+  setShadow (stateReported, timestamp) {
+    const date = timestamp ? new Date(timestamp) : new Date()
+    this.shadow = stateReported || {}
+    this.timeOfSample = date.toJSON()
   }
 
   /**

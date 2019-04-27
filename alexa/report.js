@@ -3,7 +3,7 @@ const got = require('got')
 const createError = require('http-errors')
 const randomstring = require('randomstring')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
-const iotThingEvent = require('../common/validations/iotThingEvent')
+const iotShadowEvent = require('../common/validations/iotShadowEvent')
 const AccessToken = require('../auth/models/AccessToken')
 const deviceCollection = require('../iot/collection')
 const AccessTokenRequest = require('./models/AccessTokenRequest')
@@ -15,7 +15,7 @@ const EVENT_ENDPOINT_FE = 'https://api.fe.amazonalexa.com/v3/events'
 /**
  * Lambda handler
  */
-const askResync = async (event) => {
+const reportState = async (event) => {
   let accessToken = await AccessToken.provider('alexa').retrieve()
 
   if (accessToken === null) {
@@ -25,29 +25,42 @@ const askResync = async (event) => {
     }
   }
 
+  const deviceId = event.thingName
+
   const header = {
-    namespace: 'Alexa.Discovery',
+    namespace: 'Alexa',
+    name: 'ChangeReport',
     payloadVersion: '3',
     messageId: randomstring.generate(40)
   }
 
-  const payload = {
-    scope: {
-      type: 'BearerToken',
-      token: accessToken
-    }
+  const device = await deviceCollection.loadSingleDevice('alexa', deviceId)
+  if (device === null) {
+    throw createError.NotFound()
   }
+  device.setShadow(event.state)
+  const state = await device.getState()
 
-  if (event.operation === 'CREATED' || event.operation === 'UPDATED') {
-    header.name = 'AddOrUpdateReport'
-    payload.endpoints = await deviceCollection.list('alexa')
-  } else if (event.operation === 'DELETED') {
-    header.name = 'DeleteReport'
-    payload.endpoints = [{
-      endpointId: event.thingName
-    }]
-  } else {
-    throw createError.BadRequest(`Action ${event.action} not supported`)
+  const request = {
+    event: {
+      header,
+      payload: {
+        change: {
+          cause: {
+            type: 'PHYSICAL_INTERACTION'
+          },
+          properties: state
+        }
+      },
+      endpoint: {
+        scope: {
+          type: 'BearerToken',
+          token: accessToken
+        },
+        endpointId: deviceId,
+        cookie: {}
+      }
+    }
   }
 
   let endpoint
@@ -65,13 +78,7 @@ const askResync = async (event) => {
       endpoint = EVENT_ENDPOINT_US
       break
   }
-  const request = {
-    event: {
-      header,
-      payload
-    }
-  }
-  console.log('sync request', JSON.stringify(request))
+  console.log('report state request', JSON.stringify(request))
   const response = await got.post(endpoint, {
     headers: {
       Authorization: `Bearer ${accessToken}`
@@ -79,12 +86,12 @@ const askResync = async (event) => {
     json: true,
     body: request
   })
-  console.log('sync response', JSON.stringify(response.body))
+  console.log('report state response', JSON.stringify(response.body))
   return response.body
 }
 
-const handler = middy(askResync)
+const handler = middy(reportState)
   .use(loggerMiddleware)
-  .use(iotThingEvent)
+  .use(iotShadowEvent)
 
 module.exports = { handler }
