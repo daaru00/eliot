@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "IoT made easy",
   "author": "Fabio Gollinucci <fbgolly@gmail.com>",
-  "license": "GNU",
+  "license": "GPL-3.0",
   "devDependencies": {
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
