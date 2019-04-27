@@ -13,7 +13,7 @@ IoT Home Automation bridge for Google Home and Alexa
 ![devices commands: ready](https://img.shields.io/static/v1.svg?label=devices%20commands&message=ready&color=green)
 
 ![devices list change: ready](https://img.shields.io/static/v1.svg?label=devices%20list%20change&message=ready&color=green)
-![status notification: not supported](https://img.shields.io/static/v1.svg?label=status%20notification&message=not%20supported&color=red)
+![status notification: ready](https://img.shields.io/static/v1.svg?label=status%20notification&message=ready&color=green)
 
 ### Alexa
 ![account linking: ready](https://img.shields.io/static/v1.svg?label=account%20linking&message=ready&color=green)
@@ -23,7 +23,7 @@ IoT Home Automation bridge for Google Home and Alexa
 ![devices commands: ready](https://img.shields.io/static/v1.svg?label=devices%20commands&message=ready&color=green)
 
 ![devices list change: ready](https://img.shields.io/static/v1.svg?label=devices%20list%20change&message=ready&color=green)
-![status notification: work in progress](https://img.shields.io/static/v1.svg?label=status%20notifications&message=work%20in%20progress&color=orange)
+![status notification: ready](https://img.shields.io/static/v1.svg?label=status%20notifications&message=ready&color=green)
 
 ## Getting Started
 
