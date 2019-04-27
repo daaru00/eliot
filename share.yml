@@ -3,6 +3,7 @@ parameters:
   ClientSecret: 'required'
   GoogleProjectId: 'optional'
   GoogleAPIKey: 'optional'
+  GoogleJWT: 'optional'
   AlexaSkillId: 'optional'
   AlexaClientId: 'optional'
   AlexaClientSecret: 'optional'
