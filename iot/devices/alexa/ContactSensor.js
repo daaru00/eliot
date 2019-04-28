@@ -42,13 +42,13 @@ module.exports = class ContactSensor extends BaseAlexaDevice {
    */
   async getState () {
     const parentState = await super.getState()
-    if (this.shadow.detected === undefined) {
-      this.shadow.detected = false
+    if (this.shadow.open === undefined) {
+      this.shadow.open = false
     }
     parentState.push({
       'namespace': 'Alexa.ContactSensor',
       'name': 'detectionState',
-      'value': this.shadow.detected ? 'DETECTED' : 'NOT_DETECTED',
+      'value': this.shadow.open ? 'DETECTED' : 'NOT_DETECTED',
       'timeOfSample': this.timeOfSample,
       'uncertaintyInMilliseconds': this.uncertaintyInMilliseconds
     })
