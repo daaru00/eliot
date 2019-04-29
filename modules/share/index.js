@@ -16,7 +16,8 @@ class ServerlessPlugin {
         lifecycleEvents: [
           'init',
           'template',
-          'code'
+          'code',
+          'end'
         ],
         options: {
           bucket: {
@@ -39,7 +40,9 @@ class ServerlessPlugin {
 
       'before:share:code': this.beforeCode.bind(this),
       'share:code': this.code.bind(this),
-      'after:share:code': this.afterCode.bind(this)
+      'after:share:code': this.afterCode.bind(this),
+
+      'share:end': this.end.bind(this)
     }
   }
 
@@ -55,6 +58,7 @@ class ServerlessPlugin {
       '/'
     )
     this.latestVersion = await this.getLatestVersion()
+    this.serverless.cli.log(`Deploying version ${this.latestVersion}..`)
     this.archiveFileName = `${this.serverless.service.service}.zip`
     this.destBucket = this.options.bucket
   }
@@ -86,6 +90,13 @@ class ServerlessPlugin {
   }
   afterCode () {
     this.serverless.cli.log('Code archive is ready to share!')
+  }
+
+  /**
+   * End hook
+   */
+  end () {
+    this.serverless.cli.log(`Version ${this.latestVersion} deployed!`)
   }
 
   /**
