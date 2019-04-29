@@ -17,7 +17,7 @@ package:
 # Configurations
 
 custom: 
-  stage: test
+  stage: iot
   region: eu-west-1
   credentials: ${file(./credentials.yml)}
   share: ${file(./share.yml)}

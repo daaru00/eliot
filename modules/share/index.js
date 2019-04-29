@@ -193,7 +193,7 @@ class ServerlessPlugin {
   async uploadCode (srcPath) {
     await this.provider.request('S3', 'upload', {
       ACL: 'public-read',
-      Bucket: this.deploymentBucket,
+      Bucket: this.destBucket,
       ContentType: 'application/zip',
       Key: path.join(this.latestVersion, this.archiveFileName),
       Body: fs.createReadStream(srcPath)

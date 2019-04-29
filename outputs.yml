@@ -28,7 +28,7 @@ Outputs:
           {
             "Ref": "AWS::URLSuffix"
           },
-          "/test/auth"
+          "/iot/auth"
         ]
       ]
     Description: OAuth2.0 - Authorization URL
@@ -51,7 +51,7 @@ Outputs:
           {
             "Ref": "AWS::URLSuffix"
           },
-          "/test/token"
+          "/iot/token"
         ]
       ]
     Description: OAuth2.0 - Token URL  
@@ -74,7 +74,7 @@ Outputs:
           {
             "Ref": "AWS::URLSuffix"
           },
-          "/test/google/fulfillment"
+          "/iot/google/fulfillment"
         ]
       ]
     Description: Google Home Fulfillment URL
@@ -104,6 +104,6 @@ Outputs:
           {
             "Ref": "AWS::URLSuffix"
           },
-          "/test"
+          "/iot"
         ]
       ]
