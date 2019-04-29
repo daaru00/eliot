@@ -19,7 +19,7 @@ const checkAuthorizationToken = {
     }
 
     const accessToken = authorizationToken.replace('Bearer ', '')
-    if (accessToken.length !== 40 || await AccessToken.verify(accessToken) === false) {
+    if (accessToken.length !== 40 || await AccessToken.provider('eliot').verify(accessToken) === false) {
       handler.callback('invalid_grant')
     }
   }

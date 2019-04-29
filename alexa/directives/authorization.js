@@ -36,7 +36,7 @@ module.exports = async (directive) => {
       console.error(e)
       throw e
     }
-    console.log('athorization response', response.body)
+    console.log('authorization response', response.body)
     response = JSON.parse(response.body)
     await Promise.all([
       RefreshToken.provider('alexa').store(response.refresh_token),

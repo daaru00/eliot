@@ -36,8 +36,8 @@ const generateTokens = async (event) => {
       throw createError(400, 'invalid_grant')
     }
 
-    const newRefreshToken = await RefreshToken.generate()
-    tokens = await AccessToken.generate(newRefreshToken)
+    const newRefreshToken = await RefreshToken.provider('eliot').generate()
+    tokens = await AccessToken.provider('eliot').generate(newRefreshToken)
     await AuthCode.destroy(code)
 
     return {
@@ -58,11 +58,11 @@ const generateTokens = async (event) => {
       throw createError(400, 'invalid_grant')
     }
 
-    if (await RefreshToken.verify(refreshToken) === false) {
+    if (await RefreshToken.provider('eliot').verify(refreshToken) === false) {
       throw createError(400, 'invalid_grant')
     }
 
-    tokens = await AccessToken.generate(refreshToken)
+    tokens = await AccessToken.provider('eliot').generate(refreshToken)
 
     return {
       statusCode: 200,

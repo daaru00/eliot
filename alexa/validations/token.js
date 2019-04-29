@@ -35,7 +35,7 @@ module.exports = {
       throw createError.Unauthorized()
     }
 
-    if (accessToken.length !== 40 || await AccessToken.verify(accessToken) === false) {
+    if (accessToken.length !== 40 || await AccessToken.provider('eliot').verify(accessToken) === false) {
       throw createError.Unauthorized()
     }
   }
