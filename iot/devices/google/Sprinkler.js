@@ -33,7 +33,7 @@ module.exports = class Sprinkler extends BaseGoogleDevice {
       this.shadow.running = false
     }
     if (this.shadow.paused === undefined || this.shadow.paused === null) {
-      this.shadow.isPaused = false
+      this.shadow.paused = false
     }
     if (this.shadow.zones === undefined || this.shadow.zones === null) {
       this.shadow.zones = this.getZones()
