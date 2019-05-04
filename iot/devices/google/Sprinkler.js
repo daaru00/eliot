@@ -94,7 +94,7 @@ module.exports = class Sprinkler extends BaseGoogleDevice {
    * @returns {Array}
    */
   getZones () {
-    const zones = this.attributes.availableZones || ''
-    return zones.split(',').filter(value => value.trim() !== '')
+    const zones = this.attributes.zones || ''
+    return zones.split(',').filter(value => value.trim() !== '').map(value => value.replace('_', ' '))
   }
 }
