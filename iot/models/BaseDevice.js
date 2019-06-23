@@ -17,7 +17,7 @@ module.exports = class BaseDevice {
     this.attributes = attributes
     this.dataClient = undefined
     this.shadow = undefined
-    this.reportState = true
+    this.reportState = false
     this.timeOfSample = new Date().toJSON()
   }
 

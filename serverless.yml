@@ -2,7 +2,7 @@
 # Service specifications
 
 service: eliot
-frameworkVersion: ">=1.39.0 <2.0.0"
+frameworkVersion: ">=1.42.0 <2.0.0"
 
 plugins:
   - serverless-iam-roles-per-function
@@ -277,5 +277,4 @@ functions:
 resources:
   - ${file(parameters.yml)}
   - ${file(resources.yml)}
-  - ${file(overrides.yml)}
   - ${file(outputs.yml)}

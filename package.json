@@ -8,26 +8,26 @@
     "chai": "^4.2.0",
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-import": "^2.17.3",
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
     "http-errors": "^1.7.2",
     "mocha": "^6.1.4",
-    "serverless": "^1.41.1",
+    "serverless": "^1.43.0",
     "serverless-iam-roles-per-function": "^1.0.4",
     "serverless-plugin-dynamodb": "^1.2.0"
   },
   "dependencies": {
-    "actions-on-google": "^2.6.0",
+    "actions-on-google": "^2.7.0",
     "color-convert": "^2.0.0",
     "got": "^9.6.0",
     "middy": "^0.24.0",
-    "randomstring": "^1.1.5"
+    "randomstring": "^1.1.5",
+    "serverless-plugin-share": "^1.0.0"
   },
   "scripts": {
-    "postinstall": "ln -s $(pwd)/modules/share/ node_modules/serverless-plugin-share",
-    "test:unit": "mocha ./test/unit",
+    "test:unit": "mocha ./test/unit/**/*.js",
     "test:functional": "mocha ./test/functional",
     "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "deploy": "serverless deploy",

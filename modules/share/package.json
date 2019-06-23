@@ -1,6 +1,0 @@
-{
-  "name": "serverless-plugin-share",
-  "version": "1.0.0",
-  "description": "Share your template.",
-  "main": "index.js"
-}
