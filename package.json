@@ -19,7 +19,7 @@
     "serverless-plugin-dynamodb": "^1.2.0"
   },
   "dependencies": {
-    "actions-on-google": "^2.7.0",
+    "actions-on-google": "^2.7.1",
     "color-convert": "^2.0.0",
     "got": "^9.6.0",
     "middy": "^0.24.0",
