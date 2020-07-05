@@ -2,8 +2,8 @@
 node_modules
 jspm_packages
 
-# Serverless directories
-.serverless
+# SAM build folder
+.aws-sam/
 
-# Credentials
-credentials.yml
+# SAM packages templated
+packaged.yml

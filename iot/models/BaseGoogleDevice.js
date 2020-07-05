@@ -70,7 +70,7 @@ module.exports = class BaseGoogleDevice extends BaseDevice {
    * @return {Object}
    */
   async getState () {
-    await this.loadShadow()
+    await super.getState()
     return {
       online: true
     }
