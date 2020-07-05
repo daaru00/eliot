@@ -5,6 +5,7 @@
   "author": "Fabio Gollinucci <fbgolly@gmail.com>",
   "license": "GPL-3.0",
   "devDependencies": {
+    "aws-sam-webpack-plugin": "^0.6.0",
     "chai": "^4.2.0",
     "eslint": "^5.16.0",
     "eslint-config-standard": "^12.0.0",
@@ -12,22 +13,28 @@
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
-    "mocha": "^6.1.4"
+    "mocha": "^6.1.4",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
   },
   "dependencies": {
     "actions-on-google": "^2.7.1",
+    "aws-sdk": "^2.709.0",
     "color-convert": "^2.0.0",
     "got": "^9.6.0",
+    "http-errors": "^1.7.2",
     "middy": "^0.24.0",
     "randomstring": "^1.1.5",
-    "http-errors": "^1.7.2"
+    "source-map-support": "^0.5.19"
   },
   "scripts": {
     "test:unit": "mocha ./test/unit/**/*.js",
     "test:functional": "mocha ./test/functional",
     "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "dev": "sam local start-api",
-    "build": "sam build",
-    "deploy": "sam deploy --guided"
+    "build": "webpack-cli",
+    "package": ". .environment && sam package --region $AWS_REGION --s3-bucket $S3_BUCKET --s3-prefix $S3_BUCKET_PREFIX --output-template-file packaged.yaml",
+    "publish": ". .environment && sam publish --region $AWS_REGION --semantic-version $VERSION_TAG --template packaged.yaml",
+    "deploy": ". .environment && sam deploy --guided"
   }
 }

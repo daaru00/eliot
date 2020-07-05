@@ -25,7 +25,7 @@ class AccessTokenRequest {
       }
     })
     response = JSON.parse(response.body)
-    console.log('athorization response', response)
+    console.log('authorization response', response)
     await AccessToken.provider('alexa').store(response.access_token, response.refresh_token, response.expires_in)
     return response.access_token
   }

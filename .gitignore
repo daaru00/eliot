@@ -2,8 +2,14 @@
 node_modules
 jspm_packages
 
+# IDE configurations
+.vscode
+
 # SAM build folder
 .aws-sam/
 
 # SAM packages templated
 packaged.yml
+
+# environment file
+.environment

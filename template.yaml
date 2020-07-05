@@ -54,45 +54,36 @@ Parameters:
   ClientId:
     Type: String 
     Description: "OAuth2 client ID"
-    Default: "${self:custom.credentials.clientId}"
     MinLength: 20
     AllowedPattern: ".+"
     ConstraintDescription: "Client ID is required and must have at least 20 chars"
   ClientSecret:
     Type: String
     Description: "OAuth2 client secret"
-    Default: "${self:custom.credentials.clientSecret}"
     MinLength: 40
     AllowedPattern: ".+"
     ConstraintDescription: "Client secret is required and must have at least 40 chars"
   GoogleProjectId:
     Type: String
     Description: "Google Project ID"
-    Default: "${self:custom.credentials.googleProjectId}"
   GoogleAPIKey:
     Type: String
     Description: "Google API key"
-    Default: "${self:custom.credentials.googleApiKey}"
   GoogleJWT:
     Type: String
     Description: "Google JWT token"
-    Default: "${self:custom.credentials.googleJWT}"
   AlexaSkillId:
     Type: String
     Description: "Alexa Skill ID"
-    Default: "${self:custom.credentials.alexaSkillId}"
   AlexaClientId:
     Type: String
     Description: "Alexa Client ID"
-    Default: "${self:custom.credentials.alexaClientId}"
   AlexaClientSecret:
     Type: String
     Description: "Alexa Client Secret"
-    Default: "${self:custom.credentials.alexaClientSecret}"
   AlexaEndpoint:
     Type: String
     Description: "Alexa Endpoint"
-    Default: "${self:custom.credentials.alexaEndpoint}"
     AllowedValues: 
       - NorthAmerica
       - Europe
@@ -104,9 +95,11 @@ Parameters:
 
 Conditions: 
   IsAlexaActive: 
-    !Not [!Equals [!Ref "AlexaSkillId", ""]]
+    !Not [!Equals [
+      Ref: "AlexaSkillId", ""]]
   IsGoogleHomeActive: 
-    !Not [!Equals [!Ref "GoogleProjectId", ""]]
+    !Not [!Equals [
+      Ref: "GoogleProjectId", ""]]
 
 ##
 # Auth Resources
@@ -125,14 +118,18 @@ Resources:
       Handler: auth/auth.handler
       Environment:
         Variables:
-          CLIENT_ID: !Ref ClientId
-          GOOGLE_PROJECT_ID: !Ref GoogleProjectId
-          TABLE_AUTH_CODES: !Ref AuthCodesTable
+          CLIENT_ID: 
+            Ref: ClientId
+          GOOGLE_PROJECT_ID: 
+            Ref: GoogleProjectId
+          TABLE_AUTH_CODES: 
+            Ref: AuthCodesTable
       Events:
         HttpGet:
           Type: Api
           Properties:
-            RestApiId: !Ref AuthEndpointApiGateway
+            RestApiId: 
+              Ref: AuthEndpointApiGateway
             Path: authorization
             Method: get
       Policies:
@@ -141,7 +138,8 @@ Resources:
             - Effect: Allow
               Action:
                 - dynamodb:PutItem
-              Resource: !GetAtt AuthCodesTable.Arn
+              Resource: 
+                "Fn:GetAtt": AuthCodesTable.Arn
 
   TokenFunction:
     Type: AWS::Serverless::Function
@@ -149,16 +147,22 @@ Resources:
       Handler: auth/token.handler
       Environment:
         Variables:
-          CLIENT_ID: !Ref ClientId
-          CLIENT_SECRET: !Ref ClientSecret
-          TABLE_AUTH_CODES: !Ref AuthCodesTable
-          TABLE_REFRESH_TOKENS: !Ref RefreshTokensTable
-          TABLE_ACCESS_TOKENS: !Ref AccessTokensTable
+          CLIENT_ID: 
+            Ref: ClientId
+          CLIENT_SECRET: 
+            Ref: ClientSecret
+          TABLE_AUTH_CODES: 
+            Ref: AuthCodesTable
+          TABLE_REFRESH_TOKENS: 
+            Ref: RefreshTokensTable
+          TABLE_ACCESS_TOKENS: 
+            Ref: AccessTokensTable
       Events:
         HttpPost:
           Type: Api
           Properties:
-            RestApiId: !Ref AuthEndpointApiGateway
+            RestApiId: 
+              Ref: AuthEndpointApiGateway
             Path: token
             Method: post
       Policies:
@@ -168,14 +172,17 @@ Resources:
               Action:
                 - dynamodb:GetItem
                 - dynamodb:DeleteItem
-              Resource: !GetAtt AuthCodesTable.Arn
+              Resource: 
+                "Fn:GetAtt": AuthCodesTable.Arn
             - Effect: Allow
               Action:
                 - dynamodb:PutItem
                 - dynamodb:GetItem
               Resource: 
-                - !GetAtt RefreshTokensTable.Arn
-                - !GetAtt AccessTokensTable.Arn
+                - 
+                  "Fn:GetAtt": RefreshTokensTable.Arn
+                - 
+                  "Fn:GetAtt": AccessTokensTable.Arn
 
   AuthorizerFunction:
     Type: AWS::Serverless::Function
@@ -183,14 +190,16 @@ Resources:
       Handler: auth/authorizer.handler
       Environment:
         Variables:
-          TABLE_ACCESS_TOKENS: !Ref AccessTokensTable
+          TABLE_ACCESS_TOKENS: 
+            Ref: AccessTokensTable
       Policies:
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Action:
                 - dynamodb:Query
-              Resource: !GetAtt AccessTokensTable.Arn
+              Resource: 
+                "Fn:GetAtt": AccessTokensTable.Arn
 
   AuthCodesTable:
     Type: AWS::DynamoDB::Table
@@ -262,7 +271,8 @@ Resources:
       Auth:
         Authorizers:
           OAuth2Authorizer:
-            FunctionArn: !GetAtt AuthorizerFunction.Arn
+            FunctionArn: 
+              "Fn:GetAtt": AuthorizerFunction.Arn
             Identity:
               Header: Authorization
               ReauthorizeEvery: 300
@@ -276,12 +286,14 @@ Resources:
       Handler: google-home/fulfillment.handler
       Environment:
         Variables:
-          ACCOUNT_ID: !Ref AWS::AccountId
+          ACCOUNT_ID: 
+            Ref: AWS::AccountId
       Events:
         HttpPost:
           Type: Api
           Properties:
-            RestApiId: !Ref GoogleHomeEndpointApiGateway
+            RestApiId: 
+              Ref: GoogleHomeEndpointApiGateway
             Path: fulfillment
             Method: post
       Policies:
@@ -303,8 +315,10 @@ Resources:
       Handler: google-home/resync.handler
       Environment:
         Variables:
-          ACCOUNT_ID: !Ref AWS::AccountId
-          GOOGLE_APY_KEY: !Ref GoogleAPIKey
+          ACCOUNT_ID: 
+            Ref: AWS::AccountId
+          GOOGLE_APY_KEY: 
+            Ref: GoogleAPIKey
       Events:
         IoTAllThingsEvent:
           Type: IoTRule
@@ -318,8 +332,10 @@ Resources:
       Handler: google-home/report.handler
       Environment:
         Variables:
-          ACCOUNT_ID: !Ref AWS::AccountId
-          GOOGLE_JWT: !Ref GoogleJWT
+          ACCOUNT_ID: 
+            Ref: AWS::AccountId
+          GOOGLE_JWT: 
+            Ref: GoogleJWT
       Events:
         IoTAllUpdateAccepted:
           Type: IoTRule
@@ -347,27 +363,34 @@ Resources:
       Handler: alexa/fulfillment.handler
       Environment:
         Variables:
-          TABLE_REFRESH_TOKENS: !Ref RefreshTokensTable
-          TABLE_ACCESS_TOKENS: !Ref AccessTokensTable
-          ALEXA_CLIENT_ID: !Ref AlexaClientId
-          ALEXA_CLIENT_SECRET: !Ref AlexaClientSecret
+          TABLE_REFRESH_TOKENS: 
+            Ref: RefreshTokensTable
+          TABLE_ACCESS_TOKENS: 
+            Ref: AccessTokensTable
+          ALEXA_CLIENT_ID: 
+            Ref: AlexaClientId
+          ALEXA_CLIENT_SECRET: 
+            Ref: AlexaClientSecret
       Events:
         Alexa:
           Type: AlexaSkill
           Properties:
-            SkillId: !Ref AlexaSkillId
+            SkillId: 
+              Ref: AlexaSkillId
       Policies:
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Action:
                 - dynamodb:PutItem
-              Resource: !GetAtt RefreshTokensTable.Arn
+              Resource: 
+                "Fn:GetAtt": RefreshTokensTable.Arn
             - Effect: Allow
               Action:
                 - dynamodb:Query
                 - dynamodb:PutItem
-              Resource: !GetAtt AccessTokensTable.Arn
+              Resource: 
+                "Fn:GetAtt": AccessTokensTable.Arn
             - Effect: Allow
               Action:
                 - iot:ListThings
@@ -384,11 +407,16 @@ Resources:
       Handler: alexa/resync.handler
       Environment:
         Variables:
-          TABLE_REFRESH_TOKENS: !Ref RefreshTokensTable
-          TABLE_ACCESS_TOKENS: !Ref AccessTokensTable
-          ALEXA_CLIENT_ID: !Ref AlexaClientId
-          ALEXA_CLIENT_SECRET: !Ref AlexaClientSecret
-          ALEXA_ENDPOINT: !Ref AlexaEndpoint
+          TABLE_REFRESH_TOKENS: 
+            Ref: RefreshTokensTable
+          TABLE_ACCESS_TOKENS: 
+            Ref: AccessTokensTable
+          ALEXA_CLIENT_ID: 
+            Ref: AlexaClientId
+          ALEXA_CLIENT_SECRET: 
+            Ref: AlexaClientSecret
+          ALEXA_ENDPOINT: 
+            Ref: AlexaEndpoint
       Events:
         IoTAllThingsEvent:
           Type: IoTRule
@@ -400,12 +428,14 @@ Resources:
             - Effect: Allow
               Action:
                 - dynamodb:PutItem
-              Resource: !GetAtt RefreshTokensTable.Arn
+              Resource: 
+                "Fn:GetAtt": RefreshTokensTable.Arn
             - Effect: Allow
               Action:
                 - dynamodb:Query
                 - dynamodb:PutItem
-              Resource: !GetAtt AccessTokensTable.Arn
+              Resource: 
+                "Fn:GetAtt": AccessTokensTable.Arn
             - Effect: Allow
               Action:
                 - iot:ListThings
@@ -418,11 +448,16 @@ Resources:
       Handler: alexa/report.handler
       Environment:
         Variables:
-          TABLE_REFRESH_TOKENS: !Ref RefreshTokensTable
-          TABLE_ACCESS_TOKENS: !Ref AccessTokensTable
-          ALEXA_CLIENT_ID: !Ref AlexaClientId
-          ALEXA_CLIENT_SECRET: !Ref AlexaClientSecret
-          ALEXA_ENDPOINT: !Ref AlexaEndpoint
+          TABLE_REFRESH_TOKENS: 
+            Ref: RefreshTokensTable
+          TABLE_ACCESS_TOKENS: 
+            Ref: AccessTokensTable
+          ALEXA_CLIENT_ID: 
+            Ref: AlexaClientId
+          ALEXA_CLIENT_SECRET: 
+            Ref: AlexaClientSecret
+          ALEXA_ENDPOINT: 
+            Ref: AlexaEndpoint
       Events:
         IoTAllUpdateAccepted:
           Type: IoTRule
@@ -434,12 +469,14 @@ Resources:
             - Effect: Allow
               Action:
                 - dynamodb:PutItem
-              Resource: !GetAtt RefreshTokensTable.Arn
+              Resource: 
+                "Fn:GetAtt": RefreshTokensTable.Arn
             - Effect: Allow
               Action:
                 - dynamodb:Query
                 - dynamodb:PutItem
-              Resource: !GetAtt AccessTokensTable.Arn
+              Resource: 
+                "Fn:GetAtt": AccessTokensTable.Arn
             - Effect: Allow
               Action:
                 - iot:DescribeEndpoint
@@ -454,22 +491,28 @@ Resources:
 
 Outputs:
   OAuthClientId:
-    Value: !Ref: ClientId
+    Value: 
+      Ref: ClientId
     Description: OAuth2 - Client ID
   OAuthClientSecret:
-    Value: !Ref: ClientSecret
+    Value: 
+      Ref: ClientSecret
     Description: OAuth2 - Client Secret
   OAuthAuthorizationEndpoint:
-    Value: !Sub 'https://${AuthEndpointApiGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/oauth2/authorization'
+    Value: 
+      "Fn:Sub": 'https://${AuthEndpointApiGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/oauth2/authorization'
     Description: OAuth2 - Authorization Endpoint URL
   OAuthTokenEndpoint:
-    Value: !Sub 'https://${AuthEndpointApiGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/oauth2/token'
+    Value: 
+      "Fn:Sub": 'https://${AuthEndpointApiGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/oauth2/token'
     Description: OAuth2 - Token Endpoint URL
 
   GoogleHomeFulfillmentEndpoint:
-    Value: !Sub 'https://${GoogleHomeEndpointApiGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/google/fulfillment'
+    Value: 
+      "Fn:Sub": 'https://${GoogleHomeEndpointApiGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/google/fulfillment'
     Description: Google Home - Fulfillment Endpoint URL
 
   AlexaLambdaARN:
-    Value: !GetAtt AlexaFulfillmentFunction.Arn
+    Value: 
+      "Fn:GetAtt": AlexaFulfillmentFunction.Arn
     Description: Alexa - Fulfillment Lambda Function ARN

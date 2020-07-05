@@ -1,6 +1,8 @@
-const fs = require('fs')
-const path = require('path')
 const BaseDevice = require('../models/BaseDevice')
+const BaseAlexaDevice = require('../models/BaseAlexaDevice')
+const BaseGoogleDevice = require('../models/BaseGoogleDevice')
+const AlexaDevices = require('./alexa')
+const GoogleDevices = require('./google')
 
 /**
  * Device factory
@@ -8,10 +10,19 @@ const BaseDevice = require('../models/BaseDevice')
  * @returns {BaseDevice}
  */
 module.exports = (provider, type, iotThing) => {
-  const classPath = path.join(__dirname, provider, `${type}.js`)
-  if (fs.existsSync(classPath) === false) {
-    return new BaseDevice(iotThing)
+  if (provider === 'alexa') {
+    if (AlexaDevices.hasOwnProperty(type)) {
+      return new AlexaDevices[type](iotThing)
+    }
+    return new BaseAlexaDevice(iotThing)
   }
-  const DeviceClass = require(classPath)
-  return new DeviceClass(iotThing)
+
+  if (provider === 'google') {
+    if (GoogleDevices.hasOwnProperty(type)) {
+      return new GoogleDevices[type](iotThing)
+    }
+    return new BaseGoogleDevice(iotThing)
+  }
+
+  return new BaseDevice(iotThing)
 }
