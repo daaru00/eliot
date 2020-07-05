@@ -10,12 +10,12 @@ module.exports = {
 
     const inputs = body.inputs
     if (inputs === undefined || inputs === null || Array.isArray(inputs) === false || inputs.length === 0) {
-      throw createError(400, 'invalid_inputs')
+      throw new createError.BadRequest('invalid_inputs')
     }
 
     const firstIntent = inputs[0]
     if (firstIntent === undefined || firstIntent === null) {
-      throw createError(400, 'invalid_intent')
+      throw new createError.BadRequest('invalid_intent')
     }
 
     handler.event.intent = firstIntent

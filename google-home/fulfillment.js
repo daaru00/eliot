@@ -60,6 +60,7 @@ const fulfillment = async (event) => {
 }
 
 const handler = middy(fulfillment)
+  .use(httpErrorHandler())
   .use(loggerMiddleware)
   .use(httpEventNormalizer())
   .use(jsonBodyParser())
@@ -67,6 +68,5 @@ const handler = middy(fulfillment)
   .use(validation.inputs)
   .use(validation.intentType)
   .use(validation.intentPayload)
-  .use(httpErrorHandler())
 
 module.exports = { handler }

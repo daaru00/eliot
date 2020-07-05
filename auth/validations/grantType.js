@@ -6,10 +6,11 @@ const createError = require('http-errors')
  */
 module.exports = {
   before: async (handler) => {
+    handler.event.body = handler.event.body || {}
     const grantType = handler.event.body.grant_type
 
     if (grantType !== 'authorization_code' && grantType !== 'refresh_token') {
-      throw createError(400, 'invalid_grant')
+      throw new createError.BadRequest('invalid_grant')
     }
   }
 }

@@ -34,6 +34,7 @@
     "lint": "eslint --fix --ext .js,.vue --ignore-path .gitignore .",
     "dev": "sam local start-api",
     "build": "webpack-cli",
+    "build:watch": "webpack-cli -w",
     "package": ". ./.environment && sam package",
     "publish": ". ./.environment && sam publish",
     "deploy": ". ./.environment && sam deploy"

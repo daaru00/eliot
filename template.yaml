@@ -133,6 +133,16 @@ Resources:
                 - dynamodb:PutItem
               Resource: !GetAtt AuthCodesTable.Arn
 
+  AuthLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+      - AuthEndpointApiGateway
+      - AuthFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref AuthFunction
+      Principal: apigateway.amazonaws.com
+
   TokenFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -166,6 +176,16 @@ Resources:
               Resource: 
                 - !GetAtt RefreshTokensTable.Arn
                 - !GetAtt AccessTokensTable.Arn
+
+  TokenLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+      - AuthEndpointApiGateway
+      - TokenFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref TokenFunction
+      Principal: apigateway.amazonaws.com
 
   AuthorizerFunction:
     Type: AWS::Serverless::Function

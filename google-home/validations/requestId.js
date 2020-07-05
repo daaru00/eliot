@@ -10,7 +10,7 @@ module.exports = {
     const requestId = body.requestId
 
     if (requestId === undefined || requestId === null || requestId.trim().length === 0) {
-      throw createError(400, 'invalid_request_id')
+      throw new createError.BadRequest('invalid_request_id')
     }
 
     handler.event.requestId = requestId

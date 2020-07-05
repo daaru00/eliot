@@ -39,12 +39,12 @@ const generateAuthCode = async (event) => {
 }
 
 const handler = middy(generateAuthCode)
+  .use(httpErrorHandler())
   .use(loggerMiddleware)
   .use(httpEventNormalizer())
   .use(validation.clientId)
   .use(validation.responseTypeCode)
   .use(validation.redirectUri)
   .use(validation.googleProjectId)
-  .use(httpErrorHandler())
 
 module.exports = { handler }

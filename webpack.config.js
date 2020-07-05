@@ -41,5 +41,10 @@ module.exports = {
   mode: process.env.NODE_ENV || 'production',
 
   // Add the AWS SAM Webpack plugin
-  plugins: [awsSamPlugin, copyPlugin]
+  plugins: [awsSamPlugin, copyPlugin],
+
+  // Disable minification
+  optimization: {
+    minimize: false
+  }
 }
