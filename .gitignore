@@ -9,6 +9,7 @@ jspm_packages
 .aws-sam/
 
 # SAM packages templated
+samconfig.toml
 packaged.yml
 
 # environment file

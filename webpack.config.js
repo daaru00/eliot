@@ -1,6 +1,13 @@
 const AwsSamPlugin = require('aws-sam-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 const path = require('path')
 const awsSamPlugin = new AwsSamPlugin()
+const copyPlugin = new CopyPlugin({
+  patterns: [
+    { from: 'LICENSE', to: '.aws-sam/build/LICENSE.txt' },
+    { from: 'README.md', to: '.aws-sam/build/README.md' }
+  ]
+})
 
 module.exports = {
   // Loads the entry object from the AWS::Serverless::Function resources in your
@@ -34,5 +41,5 @@ module.exports = {
   mode: process.env.NODE_ENV || 'production',
 
   // Add the AWS SAM Webpack plugin
-  plugins: [awsSamPlugin]
+  plugins: [awsSamPlugin, copyPlugin]
 }
