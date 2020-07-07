@@ -37,6 +37,7 @@
     "build:watch": "webpack-cli -w",
     "package": ". ./.environment && sam package",
     "publish": ". ./.environment && sam publish",
+    "deploy:guided": ". ./.environment && sam deploy --guided",
     "deploy": ". ./.environment && sam deploy"
   }
 }

@@ -302,6 +302,16 @@ Resources:
                 - iot:UpdateThingShadow
               Resource: '*'
 
+  GoogleHomeFulfillmentLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn:
+      - GoogleHomeEndpointApiGateway
+      - GoogleHomeFulfillmentFunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref GoogleHomeFulfillmentFunction
+      Principal: apigateway.amazonaws.com
+
   GoogleHomeReSyncFunction:
     Type: AWS::Serverless::Function
     Condition: IsGoogleHomeActive
