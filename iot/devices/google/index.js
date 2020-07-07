@@ -11,5 +11,6 @@ module.exports = {
   Sprinkler: require('./Sprinkler'),
   Switch: require('./Switch'),
   TemperatureSensor: require('./TemperatureSensor'),
+  TemperatureSensorV2: require('./TemperatureSensorV2'),
   Thermostat: require('./Thermostat')
 }
