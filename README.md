@@ -44,9 +44,14 @@ npm run deploy:guided
 ```
 follow the interactive setup wizard and it generate `samconfig.toml` configuration file.
 
-Run other deploy with:
+Run next deploy with:
 ```bash
 npm run deploy
+```
+
+Remember to build application before all deploy, here a one-liner command to do that:
+```bash
+npm run build && npm run deploy
 ```
 
 ### Remove

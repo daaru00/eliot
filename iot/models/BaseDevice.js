@@ -46,9 +46,14 @@ module.exports = class BaseDevice {
       }
       dataClient = this.dataClient
     }
-    const response = await dataClient.getThingShadow({
-      thingName: this.name
-    }).promise()
+    let response = {}
+    try {
+      response = await dataClient.getThingShadow({
+        thingName: this.name
+      }).promise()
+    } catch (err) {
+      console.error(err)
+    }
     let payload = JSON.parse(response.payload || '{}')
     payload = payload || { state: { reported: {} }, metadata: { timestamp: new Date().getTime() / 1000 } }
     this.shadow = payload.state.reported || {}
