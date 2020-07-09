@@ -367,11 +367,6 @@ Resources:
           TABLE_ACCESS_TOKENS: !Ref AccessTokensTable
           ALEXA_CLIENT_ID: !Ref AlexaClientId
           ALEXA_CLIENT_SECRET: !Ref AlexaClientSecret
-      Events:
-        Alexa:
-          Type: AlexaSkill
-          Properties:
-            SkillId: !Ref AlexaSkillId
       Policies:
         - Version: '2012-10-17'
           Statement:
@@ -392,6 +387,15 @@ Resources:
                 - iot:GetThingShadow
                 - iot:UpdateThingShadow
               Resource: '*'
+
+  AlexaSmartHomeLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Condition: IsAlexaActive
+    Properties: 
+      FunctionName: !GetAtt AlexaFulfillmentFunction.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "alexa-connectedhome.amazon.com"
+      EventSourceToken: !Ref AlexaSkillId
 
   AlexaReSyncFunction:
     Type: AWS::Serverless::Function
