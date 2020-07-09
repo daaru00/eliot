@@ -40,6 +40,10 @@ Create a Google Action or Alexa Skill and connect to deployed infrastructure res
 3. Connect Google Action: https://github.com/eliot-iot/eliot/wiki/Connect---Alexa
 4. Configure Account Linking: https://github.com/eliot-iot/eliot/wiki/Account-Linking---Alexa
 
+### Deploy
+
+Deploy Serverless Application: https://github.com/daaru00/eliot/wiki/Infrastructure---Deploy
+
 ## Manage your devices
 
 List of supported devices: https://github.com/eliot-iot/eliot/wiki/Devices-Managment---Devices
