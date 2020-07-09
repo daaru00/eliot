@@ -37,23 +37,22 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
       - name: "Build template"
-        run: npm build
+        run: npm run build
       - name: "SAM package"
         uses: youyo/aws-sam-action/python3.8@master
         with:
-          sam_command: 'package --region $AWS_DEFAULT_REGION --s3-bucket $S3_BUCKET --s3-prefix eliot --output-template-file packaged.yaml'
+          sam_command: 'package --s3-bucket ${{ secrets.S3_BUCKET }} --s3-prefix eliot --output-template-file packaged.yaml'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          S3_BUCKET: ${{ secrets.S3_BUCKET }}
       - name: "Get version tag"
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: "SAM publish"
         uses: youyo/aws-sam-action/python3.8@master
         with:
-          sam_command: 'publish --region $AWS_DEFAULT_REGION --semantic-version ${{ steps.get_version.outputs.VERSION }} --template packaged.yaml'
+          sam_command: 'publish --semantic-version ${{ steps.get_version.outputs.VERSION }} --template packaged.yaml'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
