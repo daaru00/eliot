@@ -2,30 +2,12 @@
 
 IoT Home Automation bridge for Google Home and Alexa
 
-## Project status
+## Getting Started (application deploy)
 
-### Google Home
+This template is deployed into [Serverless Application Repository](https://aws.amazon.com/serverless/serverlessrepo/).
+Just search "eliot" into repository and install it.
 
-![account linking: ready](https://img.shields.io/static/v1.svg?label=account%20linking&message=ready&color=green)
-
-![devices sync: ready](https://img.shields.io/static/v1.svg?label=devices%20sync&message=ready&color=green)
-![devices query: ready](https://img.shields.io/static/v1.svg?label=devices%20query&message=ready&color=green)
-![devices commands: ready](https://img.shields.io/static/v1.svg?label=devices%20commands&message=ready&color=green)
-
-![devices list change: ready](https://img.shields.io/static/v1.svg?label=devices%20list%20change&message=ready&color=green)
-![status notification: ready](https://img.shields.io/static/v1.svg?label=status%20notification&message=ready&color=green)
-
-### Alexa
-![account linking: ready](https://img.shields.io/static/v1.svg?label=account%20linking&message=ready&color=green)
-
-![devices sync: ready](https://img.shields.io/static/v1.svg?label=devices%20sync&message=ready&color=green)
-![devices query: ready](https://img.shields.io/static/v1.svg?label=devices%20query&message=ready&color=green)
-![devices commands: ready](https://img.shields.io/static/v1.svg?label=devices%20commands&message=ready&color=green)
-
-![devices list change: ready](https://img.shields.io/static/v1.svg?label=devices%20list%20change&message=ready&color=green)
-![status notification: ready](https://img.shields.io/static/v1.svg?label=status%20notifications&message=ready&color=green)
-
-## Getting Started
+## Getting Started (local deploy)
 
 ### Initialize
 
@@ -34,70 +16,48 @@ Clone this repository and then install npm dependencies:
 npm install
 ```
 
-### Configurations
+### Credentials
 
-Set required configurations credentials coping file `credentials.sample.yml` to `credentials.yml`:
-```yml
-# Authentication
-
-clientId: xxxxxxxxxxxxxxxxxxxx
-clientSecret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Set required configurations credentials coping file `.environment.example` to `.environment`:
+```bash
+export AWS_PROFILE=
 ```
-
-Follow the [documentation](https://eliot.link/) about Google Home and/or Alexa integration's configurations.
-
-## Debugging
-
-To see Lambda functions log use the `log` npm scripts:
-```
-npm run auth:log
-npm run token:log
-npm run authorizer:log
-npm run googleHome:log
-npm run googleHomeResync:log
-npm run alexa:log
-npm run alexaResync:log
+or
+```bash
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
 ```
 
-During tests is convenient to use a REST client like [Insomnia](https://insomnia.rest/) and watch tail function's log using:
+### Build
+
+Run build step running:
+```bash
+npm run build
 ```
-npm run auth:log
-npm run token:log
-npm run authorizer:log
-npm run googleHome:log
-npm run googleHomeResync:log
-npm run alexa:log
-npm run alexaResync:log
+this will use webpack with [SAM plugin](https://github.com/graphboss/aws-sam-webpack-plugin) to generate function's code.
+
+### Deploy
+
+Run the first deploy with:
+```bash
+npm run deploy:guided
+```
+follow the interactive setup wizard and it generate `samconfig.toml` configuration file.
+
+Run next deploy with:
+```bash
+npm run deploy
 ```
 
-## Test
-
-There are also a [Mocha](https://mochajs.org/) test suite configured to perform functional and unit tests.
-
-Function test can be runned inside a Lambda named `test` that can the required permission to access resources. To execute tests run:
-```
-npm run test:remote
-```
-and you can see the logs using:
-```
-npm run test:remote:log
+Remember to build application before all deploy, here a one-liner command to do that:
+```bash
+npm run build && npm run deploy
 ```
 
-Units test can be runned locally using:
-```
-npm run test:local
-```
+### Remove
 
-## Lint
-
-All code use the [standard rules](https://standardjs.com/) for coding style. Linter is avaiable running:
+Get current stack name from `samconfig.toml` file (settings key is `stack_name`) and use AWS CLI:
+```bash
+aws --profile <my profile> cloudformation delete-stack --stack-name <my stack name>
 ```
-npm run lint
-```
-
-## Remove the application
-
-To completely remove the application run:
-```
-npm run remove
-```
+this will remove the CloudFormation stack and all created resources.

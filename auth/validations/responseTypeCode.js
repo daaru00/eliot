@@ -6,10 +6,11 @@ const createError = require('http-errors')
  */
 module.exports = {
   before: async (handler) => {
+    handler.event.queryStringParameters = handler.event.queryStringParameters || {}
     const responseType = handler.event.queryStringParameters.response_type
 
     if (responseType !== 'code') {
-      throw createError(400, 'invalid_response_type')
+      throw new createError.BadRequest('invalid_response_type')
     }
   }
 }

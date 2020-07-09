@@ -16,7 +16,7 @@ module.exports = {
     const intent = handler.event.intent || {}
 
     if (intent === undefined || intent === null || SUPPORTED_INTENTS.includes(intent.intent) === false) {
-      throw createError(400, 'invalid_intent_type')
+      throw new createError.BadRequest('invalid_intent_type')
     }
   }
 }

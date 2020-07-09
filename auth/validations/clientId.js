@@ -6,10 +6,12 @@ const createError = require('http-errors')
  */
 module.exports = {
   before: async (handler) => {
+    handler.event.queryStringParameters = handler.event.queryStringParameters || {}
+    handler.event.body = handler.event.body || {}
     const clientId = handler.event.queryStringParameters.client_id || handler.event.body.client_id
 
     if (clientId !== process.env.CLIENT_ID) {
-      throw createError(401, 'invalid_client')
+      throw new createError.Unauthorized('invalid_client_id')
     }
   }
 }

@@ -2,16 +2,21 @@
  * Log request and response
  */
 module.exports = {
-  before: async (handler) => {
+  before: async handler => {
+    /* eslint-disable no-console */
     console.debug('event', JSON.stringify(handler.event))
   },
-  after: async (handler) => {
+  after: async handler => {
+    /* eslint-disable no-console */
     console.debug('response', JSON.stringify(handler.response))
   },
-  onError: async (handler) => {
+  onError: (handler, next) => {
     if (handler.error) {
+      /* eslint-disable no-console */
       console.error('error', handler.error)
     }
-    console.error('response', JSON.stringify(handler.response))
+    /* eslint-disable no-console */
+    console.debug('response', JSON.stringify(handler.response))
+    return next(handler.error)
   }
 }

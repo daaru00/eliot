@@ -33,7 +33,7 @@ const generateTokens = async (event) => {
     const code = body.code
 
     if (code === undefined || code.length !== 7 || await AuthCode.verify(code) === false) {
-      throw createError(400, 'invalid_grant')
+      throw new createError.BadRequest('invalid_grant')
     }
 
     const newRefreshToken = await RefreshToken.provider('eliot').generate()
@@ -55,11 +55,11 @@ const generateTokens = async (event) => {
     const refreshToken = body.refresh_token
 
     if (refreshToken === undefined || refreshToken.length !== 40) {
-      throw createError(400, 'invalid_grant')
+      throw new createError.BadRequest('invalid_grant')
     }
 
     if (await RefreshToken.provider('eliot').verify(refreshToken) === false) {
-      throw createError(400, 'invalid_grant')
+      throw new createError.BadRequest('invalid_grant')
     }
 
     tokens = await AccessToken.provider('eliot').generate(refreshToken)
@@ -84,12 +84,12 @@ const generateTokens = async (event) => {
 }
 
 const handler = middy(generateTokens)
+  .use(httpErrorHandler())
   .use(loggerMiddleware)
   .use(httpEventNormalizer())
   .use(urlEncodeBodyParser({ extended: false }))
   .use(validation.clientId)
   .use(validation.clientSecret)
   .use(validation.grantType)
-  .use(httpErrorHandler())
 
 module.exports = { handler }

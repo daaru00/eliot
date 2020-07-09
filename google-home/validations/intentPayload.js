@@ -14,7 +14,7 @@ module.exports = {
     const intent = handler.event.intent || {}
 
     if (INTENTS_WITH_PAYLOAD.includes(intent.intent) && (intent.payload === undefined || intent.payload === null)) {
-      throw createError(400, 'invalid_intent_payload')
+      throw new createError.BadRequest('invalid_intent_payload')
     }
   }
 }

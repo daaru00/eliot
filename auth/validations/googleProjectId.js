@@ -10,6 +10,7 @@ const GOOGLE_REDIRECT_HOST = 'oauth-redirect.googleusercontent.com'
  */
 module.exports = {
   before: async (handler) => {
+    handler.event.queryStringParameters = handler.event.queryStringParameters || {}
     const redirectUri = new url.URL(handler.event.queryStringParameters.redirect_uri)
 
     if (GOOGLE_PROJECT_ID === undefined || GOOGLE_PROJECT_ID === '') {
@@ -21,7 +22,7 @@ module.exports = {
     }
 
     if (redirectUri.pathname.split('/').pop() !== GOOGLE_PROJECT_ID) {
-      throw createError(400, 'invalid_project')
+      throw new createError.BadRequest('invalid_project')
     }
   }
 }

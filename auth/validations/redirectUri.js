@@ -14,10 +14,11 @@ const ALLOWED_REDIRECT_HOST = [
  */
 module.exports = {
   before: async (handler) => {
+    handler.event.queryStringParameters = handler.event.queryStringParameters || {}
     const redirectUri = new url.URL(handler.event.queryStringParameters.redirect_uri)
 
     if (redirectUri.protocol !== 'https:' || ALLOWED_REDIRECT_HOST.includes(redirectUri.host) === false) {
-      throw createError(400, 'invalid_redirect_uri')
+      throw new createError.BadRequest('invalid_redirect_uri')
     }
   }
 }
