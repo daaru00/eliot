@@ -36,6 +36,8 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
+      - name: "Install NPM dependencies"
+        run: npm install
       - name: "Build template"
         run: npm run build
       - name: "SAM package"
