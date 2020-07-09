@@ -14,6 +14,8 @@ Metadata:
     SpdxLicenseId: GPL-3.0-only
     LicenseUrl: LICENSE.txt
     ReadmeUrl: README.md
+    HomePageUrl: https://github.com/eliot-iot/eliot/blob/master/README.md
+    SourceCodeUrl: https://github.com/eliot-iot/eliot
     Labels: ['alexa', 'google', 'google-home', 'google-assistant', 'iot', 'iot-core', 'home-automation']
   AWS::CloudFormation::Interface: 
     ParameterGroups: 

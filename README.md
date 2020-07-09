@@ -1,63 +1,49 @@
 # Eliot
 
-IoT Home Automation bridge for Google Home and Alexa
+IoT Home Automation bridge for AWS IoT Core and your home assistants Google Home and Alexa.
 
-## Getting Started (application deploy)
+#### Made from developers for developers
 
-This template is deployed into [Serverless Application Repository](https://aws.amazon.com/serverless/serverlessrepo/).
-Just search "eliot" into repository and install it.
+This bridge allow you to manage your IoT Things create with AWS IoT service, this is a really powerful service that allow you to bring your IoT projects to the cloud with the minimum effort. 
 
-## Getting Started (local deploy)
+Do you have a project with on an Arduino or a RaspberryPI to control your custom smart home devices? Now you can control them with your voice using Google Home or Alexa! 
 
-### Initialize
+#### Price
 
-Clone this repository and then install npm dependencies:
-```
-npm install
-```
+As a serverless application you will pay just for the resource used, the AWS free tier plan will cover all the application's services. You'll pay around 1$ dollar at month for up to 10 devices connected, really cheap!
 
-### Credentials
+If you stop using the application the cost will be 0, you'll pay only we you used it.
 
-Set required configurations credentials coping file `.environment.example` to `.environment`:
-```bash
-export AWS_PROFILE=
-```
-or
-```bash
-export AWS_ACCESS_KEY_ID=
-export AWS_SECRET_ACCESS_KEY=
-```
+#### Easy to setup
 
-### Build
+Just a few click and you'll be ready to manage your IoT Things using your voice or from smartphone's apps.
 
-Run build step running:
-```bash
-npm run build
-```
-this will use webpack with [SAM plugin](https://github.com/graphboss/aws-sam-webpack-plugin) to generate function's code.
+#### Private
 
-### Deploy
+The entire infrastructure and data will be owned by you, no other entity in the middle.
 
-Run the first deploy with:
-```bash
-npm run deploy:guided
-```
-follow the interactive setup wizard and it generate `samconfig.toml` configuration file.
+## Getting Started
 
-Run next deploy with:
-```bash
-npm run deploy
-```
+Create a Google Action or Alexa Skill and connect to deployed infrastructure resources.
 
-Remember to build application before all deploy, here a one-liner command to do that:
-```bash
-npm run build && npm run deploy
-```
+### Google Home
 
-### Remove
+1. Create Google Action: https://github.com/eliot-iot/eliot/wiki/Create-Integrations---Google
+2. Deploy Infrastructure: https://github.com/eliot-iot/eliot/wiki/Infrastructure---Deploy
+3. Connect Google Action: https://github.com/eliot-iot/eliot/wiki/Connect---Google
+4. Configure Account Linking: https://github.com/eliot-iot/eliot/wiki/Account-Linking---Google
 
-Get current stack name from `samconfig.toml` file (settings key is `stack_name`) and use AWS CLI:
-```bash
-aws --profile <my profile> cloudformation delete-stack --stack-name <my stack name>
-```
-this will remove the CloudFormation stack and all created resources.
+### Alexa
+
+1. Create Alexa Skill: https://github.com/eliot-iot/eliot/wiki/Create-Integrations---Alexa
+2. Deploy Infrastructure: https://github.com/eliot-iot/eliot/wiki/Infrastructure---Deploy
+3. Connect Google Action: https://github.com/eliot-iot/eliot/wiki/Connect---Alexa
+4. Configure Account Linking: https://github.com/eliot-iot/eliot/wiki/Account-Linking---Alexa
+
+## Manage your devices
+
+List of supported devices: https://github.com/eliot-iot/eliot/wiki/Devices-Managment---Devices
+
+Subscribe to device events: https://github.com/eliot-iot/eliot/wiki/Devices-Managment---Notifications
+
+Device Shadow management workflow: https://github.com/eliot-iot/eliot/wiki/Devices-Managment---Shadow
