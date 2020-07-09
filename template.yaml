@@ -9,7 +9,7 @@ Description: Synchronize IoT Things to Google Home and Alexa
 Metadata:
   AWS::ServerlessRepo::Application:
     Name: eliot
-    Description: Google Home and Alexa sync with IoT Core
+    Description: Google Home and Alexa integration for IoT Core
     Author: Fabio Gollinucci
     SpdxLicenseId: GPL-3.0-only
     LicenseUrl: LICENSE.txt
