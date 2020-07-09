@@ -1,0 +1,60 @@
+name: AWS SAM CI
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Get version tag
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - name: Create Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: Version ${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+ 
+  publish-sam:
+    name: Publish to Serverless Application Repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout source code"
+        uses: actions/checkout@v2
+      - name: "Setup Node.js"
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - name: "Build template"
+        run: npm build
+      - name: "SAM package"
+        uses: youyo/aws-sam-action/python3.8@master
+        with:
+          sam_command: 'package --region $AWS_DEFAULT_REGION --s3-bucket $S3_BUCKET --s3-prefix eliot --output-template-file packaged.yaml'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+      - name: "Get version tag"
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - name: "SAM publish"
+        uses: youyo/aws-sam-action/python3.8@master
+        with:
+          sam_command: 'publish --region $AWS_DEFAULT_REGION --semantic-version ${{ steps.get_version.outputs.VERSION }} --template packaged.yaml'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
