@@ -1,6 +1,7 @@
 const middy = require('middy')
 const { urlEncodeBodyParser, httpEventNormalizer, httpErrorHandler } = require('middy/middlewares')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const ssmParameters = require('../common/middlewares/ssmParameters')
 const createError = require('http-errors')
 
 /**
@@ -86,6 +87,7 @@ const generateTokens = async (event) => {
 const handler = middy(generateTokens)
   .use(httpErrorHandler())
   .use(loggerMiddleware)
+  .use(ssmParameters())
   .use(httpEventNormalizer())
   .use(urlEncodeBodyParser({ extended: false }))
   .use(validation.clientId)

@@ -77,6 +77,7 @@ Parameters:
   GoogleJWT:
     Type: String
     Description: "Google JWT token"
+    NoEcho: true
   AlexaSkillId:
     Type: String
     Description: "Alexa Skill ID"
@@ -86,6 +87,7 @@ Parameters:
   AlexaClientSecret:
     Type: String
     Description: "Alexa Client Secret"
+    NoEcho: true
   AlexaEndpoint:
     Type: String
     Description: "Alexa Endpoint"
@@ -131,12 +133,10 @@ Resources:
             Path: authorization
             Method: get
       Policies:
-        - Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Action:
-                - dynamodb:PutItem
-              Resource: !GetAtt AuthCodesTable.Arn
+        - SSMParameterReadPolicy: 
+            ParameterName: '*'
+        - DynamoDBWritePolicy:
+            TableName: !Ref AuthCodesTable
 
   AuthLambdaPermission:
     Type: "AWS::Lambda::Permission"
@@ -167,20 +167,14 @@ Resources:
             Path: token
             Method: post
       Policies:
-        - Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Action:
-                - dynamodb:GetItem
-                - dynamodb:DeleteItem
-              Resource: !GetAtt AuthCodesTable.Arn
-            - Effect: Allow
-              Action:
-                - dynamodb:PutItem
-                - dynamodb:GetItem
-              Resource: 
-                - !GetAtt RefreshTokensTable.Arn
-                - !GetAtt AccessTokensTable.Arn
+        - SSMParameterReadPolicy: 
+            ParameterName: '*'
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AuthCodesTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AccessTokensTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RefreshTokensTable
 
   TokenLambdaPermission:
     Type: "AWS::Lambda::Permission"
@@ -200,12 +194,10 @@ Resources:
         Variables:
           TABLE_ACCESS_TOKENS: !Ref AccessTokensTable
       Policies:
-        - Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Action:
-                - dynamodb:Query
-              Resource: !GetAtt AccessTokensTable.Arn
+        - SSMParameterReadPolicy: 
+            ParameterName: '*'
+        - DynamoDBReadPolicy:
+            TableName: !Ref AccessTokensTable
 
   AuthCodesTable:
     Type: AWS::DynamoDB::Table
@@ -285,6 +277,7 @@ Resources:
     Condition: IsGoogleHomeActive
     Properties:
       Handler: google-home/fulfillment.handler
+      Timeout: 10
       Environment:
         Variables:
           ACCOUNT_ID: !Ref AWS::AccountId
@@ -296,6 +289,8 @@ Resources:
             Path: fulfillment
             Method: post
       Policies:
+        - SSMParameterReadPolicy: 
+            ParameterName: '*'
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
@@ -322,6 +317,7 @@ Resources:
     Condition: IsGoogleHomeActive
     Properties:
       Handler: google-home/resync.handler
+      Timeout: 10
       Environment:
         Variables:
           ACCOUNT_ID: !Ref AWS::AccountId
@@ -331,6 +327,9 @@ Resources:
           Type: IoTRule
           Properties:
             Sql: "SELECT * FROM '$aws/events/thing/#'"
+      Policies:
+        - SSMParameterReadPolicy: 
+            ParameterName: '*'
 
   GoogleHomeReportFunction:
     Type: AWS::Serverless::Function
@@ -347,6 +346,8 @@ Resources:
           Properties:
             Sql: "SELECT metadata, state.reported as state, topic(3) as thingName FROM '$aws/things/+/shadow/update/accepted' WHERE state.reported <> ''"
       Policies:
+        - SSMParameterReadPolicy: 
+            ParameterName: '*'
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
@@ -373,17 +374,14 @@ Resources:
           ALEXA_CLIENT_ID: !Ref AlexaClientId
           ALEXA_CLIENT_SECRET: !Ref AlexaClientSecret
       Policies:
+        - SSMParameterReadPolicy: 
+            ParameterName: '*'
+        - DynamoDBWritePolicy:
+            TableName: !Ref RefreshTokensTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AccessTokensTable
         - Version: '2012-10-17'
           Statement:
-            - Effect: Allow
-              Action:
-                - dynamodb:PutItem
-              Resource: !GetAtt RefreshTokensTable.Arn
-            - Effect: Allow
-              Action:
-                - dynamodb:Query
-                - dynamodb:PutItem
-              Resource: !GetAtt AccessTokensTable.Arn
             - Effect: Allow
               Action:
                 - iot:ListThings
@@ -420,17 +418,14 @@ Resources:
           Properties:
             Sql: "SELECT * FROM '$aws/events/thing/#'"
       Policies:
+        - SSMParameterReadPolicy: 
+            ParameterName: '*'
+        - DynamoDBWritePolicy:
+            TableName: !Ref RefreshTokensTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AccessTokensTable
         - Version: '2012-10-17'
           Statement:
-            - Effect: Allow
-              Action:
-                - dynamodb:PutItem
-              Resource: !GetAtt RefreshTokensTable.Arn
-            - Effect: Allow
-              Action:
-                - dynamodb:Query
-                - dynamodb:PutItem
-              Resource: !GetAtt AccessTokensTable.Arn
             - Effect: Allow
               Action:
                 - iot:ListThings
@@ -454,17 +449,14 @@ Resources:
           Properties:
             Sql: "SELECT metadata, state.reported as state, topic(3) as thingName FROM '$aws/things/+/shadow/update/accepted' WHERE state.reported <> ''"
       Policies:
+        - SSMParameterReadPolicy: 
+            ParameterName: '*'
+        - DynamoDBWritePolicy:
+            TableName: !Ref RefreshTokensTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref AccessTokensTable
         - Version: '2012-10-17'
           Statement:
-            - Effect: Allow
-              Action:
-                - dynamodb:PutItem
-              Resource: !GetAtt RefreshTokensTable.Arn
-            - Effect: Allow
-              Action:
-                - dynamodb:Query
-                - dynamodb:PutItem
-              Resource: !GetAtt AccessTokensTable.Arn
             - Effect: Allow
               Action:
                 - iot:DescribeEndpoint

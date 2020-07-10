@@ -2,6 +2,7 @@ const url = require('url')
 const middy = require('middy')
 const { httpEventNormalizer, httpErrorHandler } = require('middy/middlewares')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const ssmParameters = require('../common/middlewares/ssmParameters')
 
 /**
  * Models
@@ -41,6 +42,7 @@ const generateAuthCode = async (event) => {
 const handler = middy(generateAuthCode)
   .use(httpErrorHandler())
   .use(loggerMiddleware)
+  .use(ssmParameters())
   .use(httpEventNormalizer())
   .use(validation.clientId)
   .use(validation.responseTypeCode)

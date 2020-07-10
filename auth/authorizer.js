@@ -1,5 +1,6 @@
 const middy = require('middy')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const ssmParameters = require('../common/middlewares/ssmParameters')
 
 /**
  * Models
@@ -44,6 +45,7 @@ const generatePolicy = async (event) => ({
 
 const handler = middy(generatePolicy)
   .use(loggerMiddleware)
+  .use(ssmParameters())
   .use(checkAuthorizationToken)
 
 module.exports = { handler }

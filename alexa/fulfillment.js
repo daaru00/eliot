@@ -1,6 +1,7 @@
 const middy = require('middy')
 const createError = require('http-errors')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const ssmParameters = require('../common/middlewares/ssmParameters')
 const errorTransformer = require('./transformers/error')
 
 /**
@@ -58,6 +59,7 @@ const fulfillment = async (event) => {
 
 const handler = middy(fulfillment)
   .use(loggerMiddleware)
+  .use(ssmParameters())
   .use(validation.token)
   .use(validation.directive)
   .use(validation.namespace)

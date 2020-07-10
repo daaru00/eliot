@@ -1,6 +1,7 @@
 const middy = require('middy')
 const got = require('got')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const ssmParameters = require('../common/middlewares/ssmParameters')
 const iotThingEvent = require('../common/validations/iotThingEvent')
 
 const ENDPOINT = 'https://homegraph.googleapis.com/v1/devices:requestSync'
@@ -25,6 +26,7 @@ const askResync = async () => {
 
 const handler = middy(askResync)
   .use(loggerMiddleware)
+  .use(ssmParameters())
   .use(iotThingEvent)
 
 module.exports = { handler }

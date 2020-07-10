@@ -3,6 +3,7 @@ const got = require('got')
 const createError = require('http-errors')
 const randomstring = require('randomstring')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const ssmParameters = require('../common/middlewares/ssmParameters')
 const iotThingEvent = require('../common/validations/iotThingEvent')
 const AccessToken = require('../auth/models/AccessToken')
 const deviceCollection = require('../iot/collection')
@@ -85,6 +86,7 @@ const askResync = async (event) => {
 
 const handler = middy(askResync)
   .use(loggerMiddleware)
+  .use(ssmParameters())
   .use(iotThingEvent)
 
 module.exports = { handler }

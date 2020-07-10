@@ -52,9 +52,17 @@ module.exports = class BaseDevice {
         thingName: this.name
       }).promise()
     } catch (err) {
-      console.error(err)
+      if (err.code === 'ResourceNotFoundException') {
+        console.error(err.message)
+      } else {
+        throw err
+      }
     }
     let payload = JSON.parse(response.payload || '{}')
+    payload.state = payload.state || {}
+    payload.state.reported = payload.state.reported || {}
+    payload.metadata = payload.metadata || {}
+
     payload = payload || { state: { reported: {} }, metadata: { timestamp: new Date().getTime() / 1000 } }
     this.shadow = payload.state.reported || {}
     if (payload.metadata.timestamp !== undefined) {

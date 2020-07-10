@@ -2,6 +2,7 @@ const middy = require('middy')
 const createError = require('http-errors')
 const { httpErrorHandler, httpEventNormalizer, jsonBodyParser } = require('middy/middlewares')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const ssmParameters = require('../common/middlewares/ssmParameters')
 
 /**
  * Validations
@@ -62,6 +63,7 @@ const fulfillment = async (event) => {
 const handler = middy(fulfillment)
   .use(httpErrorHandler())
   .use(loggerMiddleware)
+  .use(ssmParameters())
   .use(httpEventNormalizer())
   .use(jsonBodyParser())
   .use(validation.requestId)

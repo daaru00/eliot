@@ -1,10 +1,8 @@
 const BaseDevice = require('./BaseDevice')
 
 const MANUFACTURER = 'Eliot'
-const DEFAULT_TYPE = 'action.devices.types.SWITCH'
-const DEFAULT_CAPABILITIES = [
-  'action.devices.traits.OnOff'
-]
+const DEFAULT_TYPE = 'action.devices.types.SENSOR'
+const DEFAULT_CAPABILITIES = []
 
 /**
  * Google IoT Device

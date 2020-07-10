@@ -49,9 +49,9 @@ Run next deploy with:
 npm run deploy
 ```
 
-Remember to build application before all deploy, here a one-liner command to do that:
+Remember to build application before all deploy, here a npm script that do this:
 ```bash
-npm run build && npm run deploy
+npm run build:deploy
 ```
 
 ### Remove

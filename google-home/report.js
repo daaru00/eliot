@@ -2,13 +2,11 @@ const middy = require('middy')
 const createError = require('http-errors')
 const randomstring = require('randomstring')
 const loggerMiddleware = require('../common/middlewares/eventLogger')
+const ssmParameters = require('../common/middlewares/ssmParameters')
 const iotShadowEvent = require('../common/validations/iotShadowEvent')
 const deviceCollection = require('../iot/collection')
 
 const { smarthome } = require('actions-on-google')
-const app = smarthome({
-  jwt: JSON.parse(process.env.GOOGLE_JWT)
-})
 
 /**
  * Lambda handler
@@ -16,6 +14,11 @@ const app = smarthome({
 const reportState = async (event) => {
   if (process.env.GOOGLE_JWT === undefined || process.env.GOOGLE_JWT === null) {
     return
+  }
+  try {
+    JSON.parse(process.env.GOOGLE_JWT)
+  } catch (error) {
+    throw new Error('Invalid Google JWT JSON token format: ' + error.message)
   }
   const deviceId = event.thingName
 
@@ -26,6 +29,10 @@ const reportState = async (event) => {
   const states = {}
   device.setShadow(event.state)
   states[deviceId] = await device.getState()
+
+  const app = smarthome({
+    jwt: JSON.parse(process.env.GOOGLE_JWT)
+  })
 
   const response = await app.reportState({
     requestId: randomstring.generate(40),
@@ -41,6 +48,7 @@ const reportState = async (event) => {
 
 const handler = middy(reportState)
   .use(loggerMiddleware)
+  .use(ssmParameters())
   .use(iotShadowEvent)
 
 module.exports = { handler }
