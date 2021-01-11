@@ -1,0 +1,191 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+  - AWS::Serverless-2016-10-31
+
+# Template Information
+
+Description: "Eliot OAuth2 Service"
+
+# Template Metadata
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: eliot-oauth2
+    Description: Eliot OAuth2 Service
+    Author: Fabio Gollinucci
+    SpdxLicenseId: GPL-3.0-only
+    LicenseUrl: ../../LICENSE
+    ReadmeUrl: README.md
+    HomePageUrl: https://github.com/eliot-iot/eliot/blob/master/README.md
+    SourceCodeUrl: https://github.com/eliot-iot/eliot
+    Labels: ['eliot', 'oauth2']
+
+# Template Parameters
+
+Parameters:
+  CommonDependenciesLayerArn:
+    Type: String
+    Description: "Common dependencies Layer ARN"
+  ClientId:
+    Type: String 
+    Description: "OAuth2 client ID"
+    MinLength: 20
+    AllowedPattern: ".+"
+    ConstraintDescription: "Client ID is required and must have at least 20 chars"
+    NoEcho: true
+  ClientSecret:
+    Type: String
+    Description: "OAuth2 client secret"
+    MinLength: 40
+    AllowedPattern: ".+"
+    ConstraintDescription: "Client secret is required and must have at least 40 chars"
+    NoEcho: true
+  GoogleProjectId:
+    Type: String
+    Description: "Google Project ID"
+  EventBus:
+    Type: String
+    Description: "The notification event bus"
+    Default: default
+
+# Global function defaults
+
+Globals:
+  Function:
+    Runtime: nodejs12.x
+    Timeout: 6
+    CodeUri: src/
+    Layers:
+      - !Ref CommonDependenciesLayerArn
+
+# Template Resources
+
+Resources:
+  ClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value: !Ref ClientId
+
+  ClientSecretParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value: !Ref ClientSecret
+
+  TokensTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: !Sub "${AWS::StackName}-tokens"
+      AttributeDefinitions: 
+        - AttributeName: type
+          AttributeType: 'S'
+        - AttributeName: value
+          AttributeType: 'S'
+      KeySchema: 
+        - AttributeName: type
+          KeyType: HASH
+        - AttributeName: value
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  RestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${AWS::StackName}"
+      StageName: oauth2
+      DefinitionBody:
+        Fn::Transform:
+          Name: "AWS::Include"
+          Parameters:
+            Location: "resources/api.yaml"
+
+  AuthorizationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-authorization"
+      Handler: auth.handler
+      Environment:
+        Variables:
+          CLIENT_ID_PARAMETER_NAME: !Ref ClientIdParameter
+          GOOGLE_PROJECT_ID: !Ref GoogleProjectId
+          TOKENS_TABLE_NAME: !Ref TokensTable
+          EVENT_BUS: !Ref EventBus
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref ClientIdParameter
+        - DynamoDBWritePolicy:
+            TableName: !Ref TokensTable
+      Events:  
+        HttpPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestApi
+            Path: /authorization
+            Method: get
+
+  TokenFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-token"
+      Handler: token.handler
+      Environment:
+        Variables:
+          CLIENT_ID_PARAMETER_NAME: !Ref ClientIdParameter
+          CLIENT_SECRET_PARAMETER_NAME: !Ref ClientSecretParameter
+          TOKENS_TABLE_NAME: !Ref TokensTable
+          EVENT_BUS: !Ref EventBus
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref ClientIdParameter
+        - SSMParameterReadPolicy:
+            ParameterName: !Ref ClientSecretParameter
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TokensTable
+      Events:  
+        HttpPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestApi
+            Path: /token
+            Method: post
+
+  MeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-me"
+      Handler: me.handler
+      Environment:
+        Variables:
+          TOKENS_TABLE_NAME: !Ref TokensTable
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TokensTable
+      Events:  
+        HttpPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestApi
+            Path: /me
+            Method: get
+
+# Template outputs
+
+Outputs:
+  ApiEndpointUrl:
+    Description: "The OAuth2 Endpoint URL"
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/oauth2"
+  ApiEndpointArn:
+    Description: "The OAuth2 Endpoint ARN"
+    Value: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/oauth2"
+
+

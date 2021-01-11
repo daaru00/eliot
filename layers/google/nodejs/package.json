@@ -1,0 +1,9 @@
+{
+  "name": "eliot-google-layer",
+  "version": "1.0.0",
+  "author": "Fabio Gollinucci",
+  "license": "MIT",
+  "dependencies": {
+    "actions-on-google": "^2.13.0"
+  }
+}

@@ -1,0 +1,185 @@
+openapi: "3.0.2"
+info:
+  title: "Eliot IoT endpoint"
+  version: 1.0.0
+
+paths:
+  /{providerName}/device:
+    get:
+      description: List IoT devices
+      operationId: listDevices
+      parameters:
+        - in: path
+          name: providerName
+          description: The provider name
+          schema:
+            $ref: "#/components/schemas/ProviderNameParameter"
+          required: true
+      responses:
+        200:
+          description: The Iot devices list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceListResponse"
+                  
+        default:
+          description: Somedevice went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+      security:
+        - AWS_IAM: []
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: aws_proxy
+        uri:
+          Fn::Sub: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ListDevicesFunction.Arn}/invocations"
+  
+  /{providerName}/device/{deviceId}:
+    get:
+      description: Get single IoT device
+      operationId: getDevice
+      parameters:
+        - in: path
+          name: providerName
+          description: The provider name
+          schema:
+            $ref: "#/components/schemas/ProviderNameParameter"
+          required: true
+        - in: path
+          name: deviceId
+          description: The device id
+          schema:
+            $ref: "#/components/schemas/DeviceIdParameter"
+          required: true
+      responses:
+        200:
+          description: Iot device details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceResponse"
+        default:
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+      security:
+        - AWS_IAM: []
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: aws_proxy
+        uri:
+          Fn::Sub: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetDeviceFunction.Arn}/invocations"
+  
+  /{providerName}/device/{deviceId}/command/execute:
+    post:
+      description: Execute command to Iot device
+      operationId: executeDeviceCommand
+      parameters:
+        - in: path
+          name: providerName
+          description: The provider name
+          schema:
+            $ref: "#/components/schemas/ProviderNameParameter"
+          required: true
+        - in: path
+          name: deviceId
+          description: The device id
+          schema:
+            $ref: "#/components/schemas/DeviceIdParameter"
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandRequest'
+      responses:
+        200:
+          description: Command executed successfully, return the device shadow
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommandResponse"
+        default:
+          description: Somedevice went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorMessage"
+      security:
+        - AWS_IAM: []
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: aws_proxy
+        uri:
+          Fn::Sub: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ExecuteDeviceCommandFunction.Arn}/invocations"
+  
+components:
+  schemas:
+    ProviderNameParameter:
+      type: string
+      enum:
+        - google
+        - alexa
+    
+    DeviceIdParameter:
+      type: string
+    
+    DeviceListResponse:
+      type: object
+      properties:
+        devices:
+          type: array
+          items: 
+            $ref: "#/components/schemas/DeviceDescription"
+
+    DeviceResponse:
+      type: object
+      properties:
+        description:
+          $ref: "#/components/schemas/DeviceDescription"
+        state:
+          $ref: "#/components/schemas/DeviceState"
+
+    DeviceDescription:
+      type: object
+
+    DeviceState:
+      type: object
+
+    CommandRequest:
+      type: object
+      properties:
+        command:
+          type: string
+        payload:
+          type: object
+      required:
+        - command
+
+    CommandResponse:
+      type: object
+
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+
+  securitySchemes:
+    AWS_IAM:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: awsSigv4
+
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+x-amazon-apigateway-request-validator: all

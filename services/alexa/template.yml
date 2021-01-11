@@ -1,0 +1,228 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+  - AWS::Serverless-2016-10-31
+
+# Template Information
+
+Description: "Eliot Alexa Service"
+
+# Template Metadata
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: eliot-alexa
+    Description: Eliot Alexa Service
+    Author: Fabio Gollinucci
+    SpdxLicenseId: GPL-3.0-only
+    LicenseUrl: ../../LICENSE
+    ReadmeUrl: README.md
+    HomePageUrl: https://github.com/eliot-iot/eliot/blob/master/README.md
+    SourceCodeUrl: https://github.com/eliot-iot/eliot
+    Labels: ['eliot', 'alexa']
+
+# Template Parameters
+
+Parameters:
+  CommonDependenciesLayerArn:
+    Type: String
+    Description: "Common dependencies Layer ARN"
+  AlexaSkillId:
+    Type: String
+    Description: "Alexa Skill ID"
+  AlexaClientId:
+    Type: String
+    Description: "Alexa Client ID"
+    NoEcho: true
+  AlexaClientSecret:
+    Type: String
+    Description: "Alexa Client Secret"
+    NoEcho: true
+  AlexaEndpoint:
+    Type: String
+    Description: "Alexa Endpoint"
+    Default: "Europe"
+    AllowedValues: 
+      - NorthAmerica
+      - Europe
+      - FarEast
+  OAuth2EndpointUrl:
+    Type: String
+    Description: "The OAuth2 endpoint URL"
+  OAuth2EndpointArn:
+    Type: String
+    Description: "The OAuth2 endpoint ARN"
+  IoTEndpointUrl:
+    Type: String
+    Description: "The IoT endpoint URL"
+  IoTEndpointArn:
+    Type: String
+    Description: "The IoT endpoint ARN"
+  EventBus:
+    Type: String
+    Description: "The notification event bus"
+    Default: default
+
+# Global function defaults
+
+Globals:
+  Function:
+    Runtime: nodejs12.x
+    Timeout: 6
+    CodeUri: src/
+    Layers:
+      - !Ref CommonDependenciesLayerArn
+
+# Template Resources
+
+Resources:
+  AlexaClientIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value: !Ref AlexaClientId
+
+  AlexaClientSecretParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value: !Ref AlexaClientSecret
+
+  TokensTable:
+    Type: AWS::DynamoDB::Table
+    Properties: 
+      TableName: !Sub "${AWS::StackName}-tokens"
+      AttributeDefinitions: 
+        - AttributeName: type
+          AttributeType: 'S'
+        - AttributeName: value
+          AttributeType: 'S'
+      KeySchema: 
+        - AttributeName: type
+          KeyType: HASH
+        - AttributeName: value
+          KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+
+  FulfillmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-fulfillment"
+      Handler: fulfillment.handler
+      Environment:
+        Variables:
+          EVENT_BUS: !Ref EventBus
+          TOKENS_TABLE_NAME: !Ref TokensTable
+          ALEXA_CLIENT_ID_PARAMETER_NAME: !Ref AlexaClientIdParameter
+          ALEXA_CLIENT_SECRET_PARAMETER_NAME: !Ref AlexaClientSecretParameter
+          OAUTH2_ENDPOINT_URL: !Ref OAuth2EndpointUrl
+          IOT_ENDPOINT_URL: !Ref IoTEndpointUrl
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - SSMParameterReadPolicy: 
+            ParameterName: !Ref AlexaClientSecretParameter
+        - SSMParameterReadPolicy: 
+            ParameterName: !Ref AlexaClientIdParameter
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TokensTable
+        - Statement:
+            Effect: Allow
+            Action: execute-api:Invoke
+            Resource:
+              - !Sub "${IoTEndpointArn}/GET/*"
+              - !Sub "${IoTEndpointArn}/POST/*"
+
+  SmartHomeLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties: 
+      FunctionName: !GetAtt FulfillmentFunction.Arn
+      Action: "lambda:InvokeFunction"
+      Principal: "alexa-connectedhome.amazon.com"
+      EventSourceToken: !Ref AlexaSkillId
+
+  ReSyncFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-resync"
+      Handler: resync.handler
+      Environment:
+        Variables:
+          EVENT_BUS: !Ref EventBus
+          TOKENS_TABLE_NAME: !Ref TokensTable
+          ALEXA_CLIENT_ID_PARAMETER_NAME: !Ref AlexaClientIdParameter
+          ALEXA_CLIENT_SECRET_PARAMETER_NAME: !Ref AlexaClientSecretParameter
+          ALEXA_ENDPOINT: !Ref AlexaEndpoint
+          IOT_ENDPOINT_URL: !Ref IoTEndpointUrl
+      Events:
+        DeviceDefinitionChanged:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref EventBus
+            Pattern:
+              source:
+                - eliot.iot
+              detail-type:
+                - Device Definition Changed
+                - Device Deleted
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - SSMParameterReadPolicy: 
+            ParameterName: !Ref AlexaClientSecretParameter
+        - SSMParameterReadPolicy: 
+            ParameterName: !Ref AlexaClientIdParameter
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TokensTable
+        - Statement:
+            Effect: Allow
+            Action: execute-api:Invoke
+            Resource:
+              - !Sub "${IoTEndpointArn}/GET/*"
+
+  ReportFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-report"
+      Handler: report.handler
+      Environment:
+        Variables:
+          EVENT_BUS: !Ref EventBus
+          TOKENS_TABLE_NAME: !Ref TokensTable
+          ALEXA_CLIENT_ID_PARAMETER_NAME: !Ref AlexaClientIdParameter
+          ALEXA_CLIENT_SECRET_PARAMETER_NAME: !Ref AlexaClientSecretParameter
+          ALEXA_ENDPOINT: !Ref AlexaEndpoint
+      Events:
+        DeviceStateChanged:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref EventBus
+            Pattern:
+              source:
+                - eliot.iot
+              detail-type:
+                - Device State Changed
+              detail:
+                provider:
+                  - alexa
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - SSMParameterReadPolicy: 
+            ParameterName: !Ref AlexaClientSecretParameter
+        - SSMParameterReadPolicy: 
+            ParameterName: !Ref AlexaClientIdParameter
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TokensTable
+
+# Template outputs
+
+Outputs:
+  FulfillmentFunctionArn:
+    Description: "The Alexa fulfillment function ARN"
+    Value: !GetAtt FulfillmentFunction.Arn
+

@@ -1,0 +1,177 @@
+name: Publish new application version
+
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+jobs:
+  config:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.json }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      
+      - id: matrix
+        run: |
+          JSON=$(echo $(cat .github/workflows/matrix.json) | sed 's/ //g' )
+          echo "::set-output name=json::$JSON"
+
+  layers:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        config: ${{fromJson(needs.config.outputs.matrix)}}
+    needs: [config]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Publish Lambda Layers Application
+        uses: daaru00/aws-serverless-application-repository-action@v1
+        env:
+          AWS_REGION: ${{ matrix.config.region }}
+        with:
+          src: './layers'
+          template: 'template.yml'
+          s3bucket: ${{ matrix.config.s3bucket }}
+          s3prefix: 'layers'
+
+  oauth2:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        config: ${{fromJson(needs.config.outputs.matrix)}}
+    needs: [config]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Publish OAuth2 Application
+        uses: daaru00/aws-serverless-application-repository-action@v1
+        env:
+          AWS_REGION: ${{ matrix.config.region }}
+        with:
+          src: './services/oauth2'
+          template: 'template.yml'
+          s3bucket: ${{ matrix.config.s3bucket }}
+          s3prefix: 'oauth2'
+
+  iot:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        config: ${{fromJson(needs.config.outputs.matrix)}}
+    needs: [config]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Publish IoT Application
+        uses: daaru00/aws-serverless-application-repository-action@v1
+        env:
+          AWS_REGION: ${{ matrix.config.region }}
+        with:
+          src: './services/iot'
+          template: 'template.yml'
+          s3bucket: ${{ matrix.config.s3bucket }}
+          s3prefix: 'iot'
+
+  google:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        config: ${{fromJson(needs.config.outputs.matrix)}}
+    needs: [config]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Publish Google Application
+        uses: daaru00/aws-serverless-application-repository-action@v1
+        env:
+          AWS_REGION: ${{ matrix.config.region }}
+        with:
+          src: './services/google'
+          template: 'template.yml'
+          s3bucket: ${{ matrix.config.s3bucket }}
+          s3prefix: 'google'
+
+  alexa:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        config: ${{fromJson(needs.config.outputs.matrix)}}
+    needs: [config]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Publish Alexa Application
+        uses: daaru00/aws-serverless-application-repository-action@v1
+        env:
+          AWS_REGION: ${{ matrix.config.region }}
+        with:
+          src: './services/alexa'
+          template: 'template.yml'
+          s3bucket: ${{ matrix.config.s3bucket }}
+          s3prefix: 'google'
+
+  eliot:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        config: ${{fromJson(needs.config.outputs.matrix)}}
+    needs: [config, oauth2, iot, google, alexa]
+    env:
+      AWS_REGION: ${{ matrix.config.region }}
+      AWS_STACK_LAYERS_NAME: eliot-public-layers
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Get version tag
+        id: version
+        run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
+
+      - name: Set version into template
+        run: sed -i 's/SemanticVersion\:\ [^\n]*/SemanticVersion\:\ ${{ steps.version.outputs.tag }}/g' template.yml
+      
+      - name: Set region into template
+        run: sed -i -r 's/\$\{AWS\:\:Region\}/${{ matrix.config.region }}/g' template.yml
+      
+      - name: Publish Eliot Application
+        uses: daaru00/aws-serverless-application-repository-action@v1
+        with:
+          src: './'
+          template: 'template.yml'
+          s3bucket: ${{ matrix.config.s3bucket }}
+          s3prefix: 'eliot'
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [eliot]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Get version tag
+        id: version
+        run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ steps.version.outputs.tag }}
+          draft: false
+          prerelease: false

@@ -1,16 +1,12 @@
-# package directories
-node_modules
-jspm_packages
-
 # IDE configurations
 .vscode
 
-# SAM build folder
-.aws-sam/
+# NPM modules
+node_modules
 
-# SAM packages templated
+# AWS SAM
+.aws-sam
 samconfig.toml
-packaged.yml
-
-# environment file
-.environment
+env.json
+event.json
+packaged.yaml

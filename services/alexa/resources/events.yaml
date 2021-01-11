@@ -1,0 +1,50 @@
+openapi: "3.0.2"
+info:
+  title: Eliot Alexa events
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    AlexaCommandRequested:
+      type: object
+      x-amazon-events-source: eliot.alexa
+      x-amazon-events-detail-type: Alexa Command Requested
+      description: Event emitted when Alexa request a command against a device
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]
+
+    AlexaReSyncAsked:
+      type: object
+      x-amazon-events-source: eliot.alexa
+      x-amazon-events-detail-type: Alexa ReSync Asked
+      description: Event emitted when a new resynchronization is asked to Alexa
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]
+
+    AlexaStateReported:
+      type: object
+      x-amazon-events-source: eliot.alexa
+      x-amazon-events-detail-type: Alexa State Reported
+      description: Event emitted when device state change is reported to Google
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]

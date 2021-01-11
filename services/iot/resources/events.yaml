@@ -1,0 +1,142 @@
+openapi: "3.0.2"
+info:
+  title: Eliot IoT events
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    DeviceCreatedOrUpdated:
+      type: object
+      x-amazon-events-source: eliot.iot
+      x-amazon-events-detail-type: Device Definition Changed
+      description: Event emitted when the IoT Thing definition is created or updated
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+          properties:
+            device:
+              type: string
+            operation:
+              type: string
+              enum:
+                - CREATED
+                - UPDATED
+          required: [device, operation]
+      required: [source, detail, detail-type]
+
+    DeviceDeleted:
+      type: object
+      x-amazon-events-source: eliot.iot
+      x-amazon-events-detail-type: Device Deleted
+      description: Event emitted when the IoT Thing related to device is deleted
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+          properties:
+            device:
+              type: string
+          required: [device]
+      required: [source, detail, detail-type]
+    
+    DeviceStateChanged:
+      type: object
+      x-amazon-events-source: eliot.iot
+      x-amazon-events-detail-type: Device State Changed
+      description: Event emitted when device change its state
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+          properties:
+            provider:
+              type: string
+              enum:
+                - alexa
+                - google
+            device:
+              type: string
+            state:
+              type: object
+          required: [provider, device, state]
+      required: [source, detail, detail-type]
+
+    DeviceCommandExecuted:
+      type: object
+      x-amazon-events-source: eliot.iot
+      x-amazon-events-detail-type: Device Command Executed
+      description: Event emitted when a command is executed on device
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+          properties:
+            provider:
+              type: string
+            device:
+              type: string
+            command:
+              type: string
+            payload:
+              type: object
+          required: [provider, device, command, payload]
+      required: [source, detail, detail-type]
+
+    DeviceNotFoundError:
+      type: object
+      x-amazon-events-source: eliot.iot
+      x-amazon-events-detail-type: Device Not Found Error
+      description: Event emitted when a request is made with a non-existing device identifier
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+          properties:
+            provider:
+              type: string
+            device:
+              type: string
+          required: [provider, device]
+      required: [source, detail, detail-type]
+
+    DeviceCommandNotImplementedError:
+      type: object
+      x-amazon-events-source: eliot.iot
+      x-amazon-events-detail-type: Device Command Not Implemented
+      description: Event emitted when a request is made with a non-existing device identifier
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+          properties:
+            provider:
+              type: string
+            device:
+              type: string
+            command:
+              type: string
+            payload:
+              type: object
+          required: [provider, device, command, payload]
+      required: [source, detail, detail-type]

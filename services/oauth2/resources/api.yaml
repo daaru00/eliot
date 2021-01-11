@@ -1,0 +1,184 @@
+openapi: "3.0.2"
+info:
+  title: "Eliot OAuth2 endpoint"
+  version: 1.0.0
+
+paths:
+  /authorization:
+    get:
+      operationId: authenticate
+      tags:
+        - OAuth2
+      parameters:
+        - in: query
+          name: client_id
+          description: The client ID
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: redirect_uri
+          description: The URL to which you send the response to this request
+          schema:
+            type: string
+            format: uri
+          required: true
+        - in: query
+          name: response_type
+          description: The type of value to return in the response. For the OAuth 2.0 authorization code flow, the response type is always code
+          schema:
+            type: string
+            enum: 
+              - code
+          required: true
+        - in: query
+          name: state
+          description: A bookkeeping value that is passed back unchanged in the redirect URI
+          schema:
+            type: string
+        - in: query
+          name: scope
+          description: A space-delimited set of scope strings that specify the data that client is requesting authorization for
+          schema:
+            type: string
+        - in: query
+          name: user_locale
+          description: The language in use by client in RFC5646 format
+          schema:
+            type: string
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: aws_proxy
+        uri:
+          Fn::Sub: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${AuthorizationFunction.Arn}/invocations"
+      responses:
+        302:
+          description: Redirect to redirect_uri with code and state query parameter
+          headers:
+            Location:
+              description: The redirect_uri parameter URL
+              schema:
+                type: string
+                format: uri
+        401:
+          description: One of the provided parameters are invalid
+          content:
+            'text/plain':
+              examples:
+                InvalidRedirectUri:
+                  summary: Client id is invalid
+                  value: 'invalid_client_id'
+        400:
+          description: One of the provided parameters are invalid
+          content:
+            'text/plain':
+              examples:
+                InvalidRedirectUri:
+                  summary: Response type parameter is invalid
+                  value: 'invalid_redirect_uri'
+                InvalidResponseType:
+                  summary: Response type parameter is invalid
+                  value: 'invalid_response_type'
+                InvalidGoogleProject:
+                  summary: Redirect uri refer to a different Google project
+                  value: 'invalid_google_project'
+  /token:
+    post:
+      operationId: exchangeTokens
+      tags:
+        - OAuth2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRequest'
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: aws_proxy
+        uri:
+          Fn::Sub: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${TokenFunction.Arn}/invocations"
+      responses:
+        200:
+          description: Return generated tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
+        401:
+          description: One of the provided parameters are invalid
+          content:
+            'text/plain':
+              examples:
+                InvalidClientId:
+                  summary: Client id is invalid
+                  value: 'invalid_client_id'
+                InvalidClientSecret:
+                  summary: Client secret is invalid
+                  value: 'invalid_client_secret'
+        400:
+          description: One of the provided body parameters are invalid
+          content:
+            'text/plain':
+              examples:
+                InvalidGrant:
+                  summary: Request grant parameter is invalid
+                  value: 'invalid_grant'
+  /me:
+    get:
+      operationId: checkToken
+      tags:
+        - User
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+            example: "Bearer xxxxxxxxxxxxxxxxx"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: aws_proxy
+        uri:
+          Fn::Sub: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MeFunction.Arn}/invocations"
+      responses:
+        201:
+          description: Provided bearer tokens is valid
+        401:
+          description: Provided bearer tokens is not valid
+
+components:
+  schemas:
+    TokenRequest:
+      type: object
+      properties:
+        grant_type:
+          type: string
+          enum:
+            - authorization_code
+            - refresh_token
+        client_id:
+          type: string
+        client_secret:
+          type: string
+      required: [grant_type, client_id, client_secret]
+        
+    TokenResponse:
+      type: object
+      properties:
+        token_type:
+          type: string
+          enum: 
+            - Bearer
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        expires_in:
+          type: number
+
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+x-amazon-apigateway-request-validator: all

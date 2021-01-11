@@ -1,0 +1,50 @@
+openapi: "3.0.2"
+info:
+  title: Eliot Google events
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    GoogleCommandRequested:
+      type: object
+      x-amazon-events-source: eliot.google
+      x-amazon-events-detail-type: Google Command Requested
+      description: Event emitted when Google request a command against a device
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]
+
+    GoogleReSyncAsked:
+      type: object
+      x-amazon-events-source: eliot.google
+      x-amazon-events-detail-type: Google ReSync Asked
+      description: Event emitted when a new resynchronization is asked to Google
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]
+
+    GoogleStateReported:
+      type: object
+      x-amazon-events-source: eliot.google
+      x-amazon-events-detail-type: Google State Reported
+      description: Event emitted when device state change is reported to Google
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]

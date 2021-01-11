@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+  - AWS::Serverless-2016-10-31
+
+# Template Information
+
+Description: "Eliot IoT Lambda Layers"
+
+# Template Metadata
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: eliot-layers
+    Description: Eliot IoT Lambda Layers
+    Author: Fabio Gollinucci
+    SpdxLicenseId: GPL-3.0-only
+    LicenseUrl: ../LICENSE
+    ReadmeUrl: README.md
+    HomePageUrl: https://github.com/eliot-iot/eliot/blob/master/README.md
+    SourceCodeUrl: https://github.com/eliot-iot/eliot
+    Labels: ['eliot', 'layer']
+
+# Template Parameters
+
+Parameters:
+  SharePermission:
+    Type: String 
+    Description: "Set share permissions"
+    Default: "Private"
+    AllowedValues: 
+      - Private
+      - Public
+
+# Flag Conditions
+
+Conditions: 
+  IsPublic: !Equals [!Ref "SharePermission", "Public"]
+
+# Template Resources
+
+Resources:
+
+  # Common dependencies
+
+  CommonDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "${AWS::StackName}-common"
+      ContentUri: ./common
+      CompatibleRuntimes:
+        - nodejs12.x
+      LicenseInfo: 'MIT'
+
+  CommonPublicLayerPermission:
+    Type: AWS::Lambda::LayerVersionPermission
+    Condition: IsPublic
+    Properties:
+      Action: lambda:GetLayerVersion
+      LayerVersionArn: !Ref CommonDependenciesLayer
+      Principal: '*'
+
+  # IoT dependencies
+
+  IoTDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "${AWS::StackName}-iot"
+      ContentUri: ./iot
+      CompatibleRuntimes:
+        - nodejs12.x
+      LicenseInfo: 'MIT'
+
+  IoTPublicLayerPermission:
+    Type: AWS::Lambda::LayerVersionPermission
+    Condition: IsPublic
+    Properties:
+      Action: lambda:GetLayerVersion
+      LayerVersionArn: !Ref IoTDependenciesLayer
+      Principal: '*'
+
+  # Google dependencies
+
+  GoogleDependenciesLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "${AWS::StackName}-google"
+      ContentUri: ./google
+      CompatibleRuntimes:
+        - nodejs12.x
+      LicenseInfo: 'MIT'
+
+  GooglePublicLayerPermission:
+    Type: AWS::Lambda::LayerVersionPermission
+    Condition: IsPublic
+    Properties:
+      Action: lambda:GetLayerVersion
+      LayerVersionArn: !Ref GoogleDependenciesLayer
+      Principal: '*'
+
+# Template outputs
+
+Outputs:
+  CommonDependenciesLayerArn:
+    Value: !Ref CommonDependenciesLayer
+    Description: Common dependencies layer ARN
+  IoTDependenciesLayerArn:
+    Value: !Ref IoTDependenciesLayer
+    Description: IoT dependencies layer ARN
+  GoogleDependenciesLayerArn:
+    Value: !Ref GoogleDependenciesLayer
+    Description: Google Smart Home dependencies layer ARN
+    
+

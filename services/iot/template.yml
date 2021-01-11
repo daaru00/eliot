@@ -1,0 +1,220 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+  - AWS::Serverless-2016-10-31
+
+# Template Information
+
+Description: "Eliot IoT Service"
+
+# Template Metadata
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: eliot-iot
+    Description: Eliot IoT Service
+    Author: Fabio Gollinucci
+    SpdxLicenseId: GPL-3.0-only
+    LicenseUrl: ../../LICENSE
+    ReadmeUrl: README.md
+    HomePageUrl: https://github.com/eliot-iot/eliot/blob/master/README.md
+    SourceCodeUrl: https://github.com/eliot-iot/eliot
+    Labels: ['eliot', 'iot', 'iot-core']
+
+# Template Parameters
+
+Parameters:
+  CommonDependenciesLayerArn:
+    Type: String
+    Description: "Common dependencies Layer ARN"
+  IoTDependenciesLayerArn:
+    Type: String
+    Description: "IoT dependencies Layer ARN"
+  ThingAttributeSyncName:
+    Type: String
+    Description: The Thing attribute name for things filter
+    Default: sync
+  ThingAttributeSyncValue:
+    Type: String
+    Description: The Thing attribute ThingAttributeSyncName's value for things filter
+    Default: enable
+  ThingAttributeTypeName:
+    Type: String
+    Description: IoT Thing attribute that contains device type name
+    Default: type
+  ConcurrentShadowGet:
+    Type: Number
+    Description: Number of concurrent device shadow to load
+    Default: 5
+    MinValue: 1
+  EventBus:
+    Type: String
+    Description: "The notification event bus"
+    Default: default
+
+# Global function defaults
+
+Globals:
+  Function:
+    Runtime: nodejs12.x
+    Timeout: 6
+    CodeUri: src/
+    Layers:
+      - !Ref CommonDependenciesLayerArn
+      - !Ref IoTDependenciesLayerArn
+
+# Template Resources
+
+Resources:
+  RestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${AWS::StackName}"
+      StageName: iot
+      DefinitionBody:
+        Fn::Transform:
+          Name: "AWS::Include"
+          Parameters:
+            Location: "resources/api.yaml"
+
+  ListDevicesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-list-devices"
+      Handler: listDevices.handler
+      Environment:
+        Variables:
+          ATTRIBUTE_SYNC_NAME: !Ref ThingAttributeSyncName
+          ATTRIBUTE_SYNC_VALUE: !Ref ThingAttributeSyncValue
+          ATTRIBUTE_TYPE_NAME: !Ref ThingAttributeTypeName
+          CONCURRENT_SHADOW_GET: !Ref ConcurrentShadowGet
+      Policies:
+        - Statement:
+            Effect: Allow
+            Action:
+              - iot:ListThings
+              - iot:DescribeEndpoint
+              - iot:DescribeThing
+              - iot:GetThingShadow
+            Resource: '*'
+      Events:  
+        HttpPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestApi
+            Path: /{providerName}/device
+            Method: get
+
+  GetDeviceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-get-device"
+      Handler: getDevice.handler
+      Environment:
+        Variables:
+          ATTRIBUTE_TYPE_NAME: !Ref ThingAttributeTypeName
+          EVENT_BUS: !Ref EventBus
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - Statement:
+            Effect: Allow
+            Action:
+              - iot:DescribeEndpoint
+              - iot:DescribeThing
+              - iot:GetThingShadow
+            Resource: '*'
+      Events:  
+        HttpPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestApi
+            Path: /{providerName}/device/{deviceId}
+            Method: get
+
+  ExecuteDeviceCommandFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-execute-device-command"
+      Handler: executeDeviceCommand.handler
+      Environment:
+        Variables:
+          ATTRIBUTE_TYPE_NAME: !Ref ThingAttributeTypeName
+          EVENT_BUS: !Ref EventBus
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - Statement:
+            Effect: Allow
+            Action:
+              - iot:DescribeEndpoint
+              - iot:DescribeThing
+              - iot:GetThingShadow
+              - iot:UpdateThingShadow
+            Resource: '*'
+      Events:  
+        HttpPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestApi
+            Path: /{providerName}/device/{deviceId}/command/execute
+            Method: post
+
+  OnDefinitionChangedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-on-definition-changed"
+      Handler: onDefinitionChanged.handler
+      Environment:
+        Variables:
+          EVENT_BUS: !Ref EventBus
+      Events:
+        IoTAllThingsEvent:
+          Type: IoTRule
+          Properties:
+            Sql: "SELECT * FROM '$aws/events/thing/#'"
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - Statement:
+            Effect: Allow
+            Action:
+              - iot:DescribeThing
+            Resource: '*'
+
+  OnStateChangedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-on-state-changed"
+      Handler: onStateChanged.handler
+      Environment:
+        Variables:
+          EVENT_BUS: !Ref EventBus
+          ATTRIBUTE_SYNC_NAME: !Ref ThingAttributeSyncName
+          ATTRIBUTE_SYNC_VALUE: !Ref ThingAttributeSyncValue
+          ATTRIBUTE_TYPE_NAME: !Ref ThingAttributeTypeName
+      Events:
+        IoTAllUpdateAccepted:
+          Type: IoTRule
+          Properties:
+            Sql: "SELECT metadata, state.reported as state, topic(3) as thingName FROM '$aws/things/+/shadow/update/accepted' WHERE state.reported <> ''"
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - Statement:
+            Effect: Allow
+            Action:
+              - iot:DescribeEndpoint
+              - iot:DescribeThing
+              - iot:GetThingShadow
+            Resource: '*'
+
+  # Template outputs
+
+Outputs:
+  ApiEndpointUrl:
+    Description: "The IoT Endpoint URL"
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/iot"
+  ApiEndpointArn:
+    Description: "The OAuth2 Endpoint ARN"
+    Value: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/iot"
+

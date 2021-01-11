@@ -1,0 +1,156 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+  - AWS::Serverless-2016-10-31
+
+# Template Information
+
+Description: "Eliot IoT bridge for Alexa and Google Smart Home - Development"
+
+# Template Parameters
+
+Parameters:
+  ClientId:
+    Type: String 
+    Description: "OAuth2 client ID"
+    MinLength: 20
+    AllowedPattern: ".+"
+    ConstraintDescription: "Client ID is required and must have at least 20 chars"
+    NoEcho: true
+  ClientSecret:
+    Type: String
+    Description: "OAuth2 client secret"
+    MinLength: 40
+    AllowedPattern: ".+"
+    ConstraintDescription: "Client secret is required and must have at least 40 chars"
+    NoEcho: true
+  GoogleProjectId:
+    Type: String
+    Description: "Google Project ID"
+    Default: ""
+  GoogleJwt:
+    Type: String
+    Description: "Google JWT token"
+    NoEcho: true
+    Default: ""
+  AlexaSkillId:
+    Type: String
+    Description: "Alexa Skill ID"
+    Default: ""
+  AlexaClientId:
+    Type: String
+    Description: "Alexa Client ID"
+    NoEcho: true
+    Default: ""
+  AlexaClientSecret:
+    Type: String
+    Description: "Alexa Client Secret"
+    NoEcho: true
+    Default: ""
+  AlexaEndpoint:
+    Type: String
+    Description: "Alexa Endpoint"
+    Default: "Europe"
+    AllowedValues: 
+      - NorthAmerica
+      - Europe
+      - FarEast
+
+# Flag Conditions
+
+Conditions: 
+  IsAlexaActive: 
+    Fn::Not: [!Equals [!Ref "AlexaSkillId", ""]]
+  IsGoogleSmartHomeActive: 
+    Fn::Not: [!Equals [!Ref "GoogleProjectId", ""]]
+
+# Template Resources
+
+Resources:
+
+  # Layers
+  
+  layers:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: layers/template.yml
+
+  # Event bus
+
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: !Sub "${AWS::StackName}-events"
+
+  # Services
+
+  oauth2:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: services/oauth2/template.yml
+      Parameters:
+        CommonDependenciesLayerArn: !GetAtt layers.Outputs.CommonDependenciesLayerArn
+        ClientId: !Ref ClientId
+        ClientSecret: !Ref ClientSecret
+        GoogleProjectId: !Ref GoogleProjectId
+        EventBus: !Ref EventBus
+
+  iot:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: services/iot/template.yml
+      Parameters:
+        CommonDependenciesLayerArn: !GetAtt layers.Outputs.CommonDependenciesLayerArn
+        IoTDependenciesLayerArn: !GetAtt layers.Outputs.IoTDependenciesLayerArn
+        EventBus: !Ref EventBus
+
+  google:
+    Type: AWS::Serverless::Application
+    Condition: IsGoogleSmartHomeActive
+    Properties:
+      Location: services/google/template.yml
+      Parameters:
+        CommonDependenciesLayerArn: !GetAtt layers.Outputs.CommonDependenciesLayerArn
+        GoogleDependenciesLayerArn: !GetAtt layers.Outputs.GoogleDependenciesLayerArn
+        GoogleProjectId: !Ref GoogleProjectId
+        GoogleJwt: !Ref GoogleJwt
+        OAuth2EndpointUrl: !GetAtt oauth2.Outputs.ApiEndpointUrl
+        OAuth2EndpointArn: !GetAtt oauth2.Outputs.ApiEndpointArn
+        IoTEndpointUrl: !GetAtt iot.Outputs.ApiEndpointUrl
+        IoTEndpointArn: !GetAtt iot.Outputs.ApiEndpointArn
+        EventBus: !Ref EventBus
+  
+  alexa:
+    Type: AWS::Serverless::Application
+    Condition: IsAlexaActive
+    Properties:
+      Location: services/alexa/template.yml
+      Parameters:
+        CommonDependenciesLayerArn: !GetAtt layers.Outputs.CommonDependenciesLayerArn
+        AlexaSkillId: !Ref AlexaSkillId
+        AlexaClientId: !Ref AlexaClientId
+        AlexaClientSecret: !Ref AlexaClientSecret
+        AlexaEndpoint: !Ref AlexaEndpoint
+        OAuth2EndpointUrl: !GetAtt oauth2.Outputs.ApiEndpointUrl
+        OAuth2EndpointArn: !GetAtt oauth2.Outputs.ApiEndpointArn
+        IoTEndpointUrl: !GetAtt iot.Outputs.ApiEndpointUrl
+        IoTEndpointArn: !GetAtt iot.Outputs.ApiEndpointArn
+        EventBus: !Ref EventBus
+
+# Template outputs
+
+Outputs:
+  OAuth2AuthorizationEndpoint:
+    Value: !Sub "${oauth2.Outputs.ApiEndpointUrl}/authorization"
+    Description: OAuth2 - Authorization Endpoint URL
+  OAuth2TokenEndpoint:
+    Value: !Sub "${oauth2.Outputs.ApiEndpointUrl}/token"
+    Description: OAuth2 - Token Endpoint URL
+  GoogleSmartHomeFulfillmentEndpoint:
+    Value: !Sub "${google.Outputs.ApiEndpointUrl}/fulfillment"
+    Description: Google Smart Home - Fulfillment Endpoint URL
+    Condition: IsGoogleSmartHomeActive
+  AlexaLambdaARN:
+    Value: !GetAtt alexa.Outputs.FulfillmentFunctionArn
+    Description: Alexa - Fulfillment Lambda Function ARN
+    Condition: IsAlexaActive
+

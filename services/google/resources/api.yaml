@@ -1,0 +1,104 @@
+openapi: "3.0.2"
+info:
+  title: " Eliot Google Smart Home endpoint"
+  version: 1.0.0
+
+paths:
+  /fulfillment:
+    post:
+      description: Google Smart Home fulfillment
+      operationId: googleFulfillment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FulfillmentRequest'
+      responses:
+        200:
+          description: "Fulfillment response fot Google Smart Home"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FulfillmentResponse"
+                    
+      security:
+        - OAuth2: []
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        type: aws_proxy
+        uri:
+          Fn::Sub: "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FulfillmentFunction.Arn}/invocations"
+
+components:
+  schemas:
+    FulfillmentRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        inputs:
+          type: array
+          items:
+            type: object
+            properties:
+              intent: 
+                type: string
+                enum: 
+                  - action.devices.SYNC
+                  - action.devices.QUERY
+                  - action.devices.EXECUTE
+              payload:
+                type: object
+                properties:
+                  commands: 
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        devices:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                            required: [id]
+                        execution:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              command:
+                                type: string
+                              params:
+                                type: object
+                            required: [command]
+            required: [intent]
+      required: [requestId, inputs]
+      
+    FulfillmentResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        payload:
+          type: object
+          
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+  securitySchemes:
+    OAuth2:
+      type: http
+      scheme: bearer
+
+x-amazon-apigateway-request-validators:
+  all:
+    validateRequestBody: true
+    validateRequestParameters: true
+x-amazon-apigateway-request-validator: all

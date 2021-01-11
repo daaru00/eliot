@@ -1,0 +1,188 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+  - AWS::Serverless-2016-10-31
+
+# Template Information
+
+Description: "Eliot Google Smart Home Service"
+
+# Template Metadata
+
+Metadata:
+  AWS::ServerlessRepo::Application:
+    Name: eliot-google
+    Description: Eliot Google Service
+    Author: Fabio Gollinucci
+    SpdxLicenseId: GPL-3.0-only
+    LicenseUrl: ../../LICENSE
+    ReadmeUrl: README.md
+    HomePageUrl: https://github.com/eliot-iot/eliot/blob/master/README.md
+    SourceCodeUrl: https://github.com/eliot-iot/eliot
+    Labels: ['eliot', 'google']
+
+# Template Parameters
+
+Parameters:
+  CommonDependenciesLayerArn:
+    Type: String
+    Description: "Common dependencies Layer ARN"
+  GoogleDependenciesLayerArn:
+    Type: String
+    Description: "Google Smart Home dependencies Layer ARN"
+  GoogleProjectId:
+    Type: String
+    Description: "Google Project ID"
+  GoogleJwt:
+    Type: String
+    Description: "Google JWT token"
+    NoEcho: true
+  OAuth2EndpointUrl:
+    Type: String
+    Description: "The OAuth2 endpoint URL"
+  OAuth2EndpointArn:
+    Type: String
+    Description: "The OAuth2 endpoint ARN"
+  IoTEndpointUrl:
+    Type: String
+    Description: "The IoT endpoint URL"
+  IoTEndpointArn:
+    Type: String
+    Description: "The IoT endpoint ARN"
+  EventBus:
+    Type: String
+    Description: "The notification event bus"
+    Default: default
+
+# Global function defaults
+
+Globals:
+  Function:
+    Runtime: nodejs12.x
+    Timeout: 6
+    CodeUri: src/
+    Layers:
+      - !Ref CommonDependenciesLayerArn
+      - !Ref GoogleDependenciesLayerArn
+
+# Template Resources
+
+Resources:
+  GoogleJwtParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value: !Ref GoogleJwt
+
+  RestApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub "${AWS::StackName}-google"
+      StageName: google
+      DefinitionBody:
+        Fn::Transform:
+          Name: "AWS::Include"
+          Parameters:
+            Location: "resources/api.yaml"
+
+  FulfillmentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-fulfillment"
+      Handler: fulfillment.handler
+      Timeout: 10
+      Environment:
+        Variables:
+          ACCOUNT_ID: !Ref AWS::AccountId
+          OAUTH2_ENDPOINT_URL: !Ref OAuth2EndpointUrl
+          IOT_ENDPOINT_URL: !Ref IoTEndpointUrl
+          EVENT_BUS: !Ref EventBus
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - Statement:
+            Effect: Allow
+            Action: execute-api:Invoke
+            Resource:
+              - !Sub "${IoTEndpointArn}/GET/*"
+              - !Sub "${IoTEndpointArn}/POST/*"
+      Events:  
+        HttpPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref RestApi
+            Path: /fulfillment
+            Method: post
+
+  ReSyncFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-resync"
+      Handler: resync.handler
+      Timeout: 10
+      Environment:
+        Variables:
+          ACCOUNT_ID: !Ref AWS::AccountId
+          GOOGLE_JWT_PARAMETER_NAME: !Ref GoogleJwtParameter
+          EVENT_BUS: !Ref EventBus
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - SSMParameterReadPolicy: 
+            ParameterName: !Ref GoogleJwtParameter
+      Events:
+        DeviceDefinitionChanged:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref EventBus
+            Pattern:
+              source:
+                - eliot.iot
+              detail-type:
+                - Device Definition Changed
+                - Device Deleted
+
+  ReportFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-report"
+      Handler: report.handler
+      Environment:
+        Variables:
+          ACCOUNT_ID: !Ref AWS::AccountId
+          IOT_ENDPOINT_URL: !Ref IoTEndpointUrl
+          GOOGLE_JWT_PARAMETER_NAME: !Ref GoogleJwtParameter
+          EVENT_BUS: !Ref EventBus
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref EventBus
+        - SSMParameterReadPolicy: 
+            ParameterName: !Ref GoogleJwtParameter
+        - Statement:
+            Effect: Allow
+            Action: execute-api:Invoke
+            Resource:
+              - !Sub "${IoTEndpointArn}/GET/*"
+      Events:
+        DeviceStateChanged:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Ref EventBus
+            Pattern:
+              source:
+                - eliot.iot
+              detail-type:
+                - Device State Changed
+              detail:
+                provider:
+                  - google
+
+# Template outputs
+
+Outputs:
+  ApiEndpointUrl:
+    Description: "The Google Smart Home API Endpoint URL"
+    Value: !Sub "https://${RestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/google"
+  ApiEndpointArn:
+    Description: "The Google Smart Home API Endpoint ARN"
+    Value: !Sub "arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/google"
+

@@ -1,0 +1,92 @@
+openapi: "3.0.2"
+info:
+  title: Eliot OAuth2 events
+  version: 1.0.0
+
+paths: {}
+
+components:
+  schemas:
+    AuthCodeRequested:
+      type: object
+      x-amazon-events-source: eliot.oauth2
+      x-amazon-events-detail-type: AuthCode Requested
+      description: Event emitted when an OAuth2 auth code is requested
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]
+    
+    AuthCodeExchanged:
+      type: object
+      x-amazon-events-source: eliot.oauth2
+      x-amazon-events-detail-type: AuthCode Exchanged
+      description: Event emitted when an auth code is exchange for refresh ans access tokens
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]
+
+    AccessTokenGenerated:
+      type: object
+      x-amazon-events-source: eliot.oauth2
+      x-amazon-events-detail-type: AccessToken Generated
+      description: Event emitted when a new OAuth2 access token is generated using a refresh token
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]
+
+    AuthCodeError:
+      type: object
+      x-amazon-events-source: eliot.oauth2
+      x-amazon-events-detail-type: AuthCode Error
+      description: Event emitted when an error is raised during auth code request
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]
+
+    AuthCodeExchangeError:
+      type: object
+      x-amazon-events-source: eliot.oauth2
+      x-amazon-events-detail-type: AuthCode Exchange Error
+      description: Event emitted when an error is raised during auth code exchange
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]
+
+    AccessTokenGenerateError:
+      type: object
+      x-amazon-events-source: eliot.oauth2
+      x-amazon-events-detail-type: AccessToken Generate Error
+      description: Event emitted when an error is raised during access token refresh
+      properties:
+        source:
+          type: string
+        detail-type:
+          type: string
+        detail:
+          type: object
+      required: [source, detail, detail-type]

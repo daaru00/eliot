@@ -1,0 +1,18 @@
+[
+  {
+    "region": "eu-west-1",
+    "s3bucket": "eliot-wahsheethee7oog"
+  },
+  {
+    "region": "eu-central-1",
+    "s3bucket": "eliot-dahyoh2shiev9sh"
+  },
+  {
+    "region": "us-east-1",
+    "s3bucket": "eliot-yohruo4tha5nae2"
+  },
+  {
+    "region": "us-east-2",
+    "s3bucket": "eliot-eucais8ooz6ieza"
+  }
+]
