@@ -26,10 +26,10 @@ Deploy from Serverless Application Repository:
 
 | Region       | Support            | Install Link                                 |
 | ------------ | ------------------ | -------------------------------------------- |
-| eu-west-1    | :heavy_check_mark: |                                              |
-| eu-central-1 | :heavy_check_mark: |                                              |
-| us-east-1    | :heavy_check_mark: |                                              |
-| us-east-2    | :heavy_check_mark: |                                              | 
+| eu-west-1    | :heavy_check_mark: | [install](https://eu-west-1.console.aws.amazon.com/lambda/home?region=eu-west-1#/create/app?applicationId=arn:aws:serverlessrepo:eu-west-1:597720084096:applications/eliot)    |
+| eu-central-1 | :heavy_check_mark: | [install](https://eu-central-1.console.aws.amazon.com/lambda/home?region=eu-central-1#/create/app?applicationId=arn:aws:serverlessrepo:eu-central-1:597720084096:applications/eliot) |
+| us-east-1    | :heavy_check_mark: | [install](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/create/app?applicationId=arn:aws:serverlessrepo:us-east-1:597720084096:applications/eliot)    |
+| us-east-2    | :heavy_check_mark: | [install](https://us-east-2.console.aws.amazon.com/lambda/home?region=us-east-2#/create/app?applicationId=arn:aws:serverlessrepo:us-east-2:597720084096:applications/eliot)    |
 | eu-south-1   | :x:                |                                              |
 | af-south-1   | :x:                |                                              |
 
